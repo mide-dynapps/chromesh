@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Chromesh — paramètres</title>
+    <style>
+        body {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 24px 16px 48px;
+            font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+            color: #1f2329;
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background: #1b1f24; color: #e9ecef; }
+            fieldset { border-color: #2f353c; }
+            input, select { background: #23282e; color: #e9ecef; border-color: #3a4149; }
+        }
+        h1 { font-size: 18px; }
+        fieldset { margin: 0 0 18px; padding: 12px 16px; border: 1px solid #e4e7ea; border-radius: 6px; }
+        legend { padding: 0 6px; font-weight: 600; font-size: 13px; }
+        label { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+        label span.grow { flex-grow: 1; }
+        input[type="number"] { width: 70px; }
+        input, select { padding: 4px 6px; border: 1px solid #ccd2d8; border-radius: 4px; }
+        .hint { margin: 2px 0 10px; color: #6c757d; font-size: 12px; }
+        #saved { color: #2f9e44; font-size: 12px; }
+        ul { padding-left: 18px; }
+        button { padding: 5px 12px; border-radius: 4px; border: 1px solid #ccd2d8; background: transparent; color: inherit; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Chromesh</h1>
+
+    <fieldset>
+        <legend>Jours ouvrés</legend>
+        <label>
+            <span class="grow">Jours fériés</span>
+            <select id="country">
+                <option value="FR">France</option>
+                <option value="BE">Belgique</option>
+                <option value="LU">Luxembourg</option>
+                <option value="NONE">Aucun</option>
+            </select>
+        </label>
+        <label>
+            <input type="checkbox" id="useHolidays">
+            <span class="grow">Exclure les jours fériés du décompte</span>
+        </label>
+        <p class="hint">
+            Les samedis et dimanches sont toujours exclus. L'échéance affichée est le dernier jour
+            ouvré avant la suppression annoncée par Odoo.sh.
+        </p>
+    </fieldset>
+
+    <fieldset>
+        <legend>Seuils</legend>
+        <label>
+            <span class="grow">Critique (rouge) à partir de</span>
+            <input type="number" id="criticalDays" min="0" max="30"> j ouvrés
+        </label>
+        <label>
+            <span class="grow">Avertissement (orange) à partir de</span>
+            <input type="number" id="warningDays" min="0" max="60"> j ouvrés
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Alertes</legend>
+        <label>
+            <input type="checkbox" id="notify">
+            <span class="grow">Notification système</span>
+        </label>
+        <label>
+            <span class="grow">Pas avant</span>
+            <input type="number" id="notifyHour" min="0" max="23"> h
+        </label>
+        <p class="hint">Une notification par branche et par jour, au plus.</p>
+    </fieldset>
+
+    <fieldset>
+        <legend>Affichage</legend>
+        <label>
+            <input type="checkbox" id="showBadges">
+            <span class="grow">Pastilles dans la liste des branches</span>
+        </label>
+        <label>
+            <input type="checkbox" id="showBanner">
+            <span class="grow">Bandeau sur la page de la branche</span>
+        </label>
+        <label>
+            <input type="checkbox" id="scanAllProjects">
+            <span class="grow">Balayer tous les projets, pas seulement celui ouvert</span>
+        </label>
+        <label>
+            <span class="grow">Rafraîchir les données toutes les</span>
+            <input type="number" id="refreshHours" min="1" max="72"> h
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Branches ignorées</legend>
+        <p class="hint">
+            Une par ligne. <code>projet::branche</code> pour une branche,
+            <code>projet::*</code> ou <code>projet</code> pour tout le projet.
+            La casse est ignorée.
+        </p>
+        <textarea id="ignored" rows="4" style="width: 100%; box-sizing: border-box;"></textarea>
+    </fieldset>
+
+    <button type="button" id="save">Enregistrer</button>
+    <span id="saved" hidden>Enregistré.</span>
+
+    <script src="../common/workdays.js"></script>
+    <script src="../common/parse.js"></script>
+    <script src="../common/urgency.js"></script>
+    <script src="../common/settings.js"></script>
+    <script src="../common/api.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>

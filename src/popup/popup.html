@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Chromesh</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <header>
+        <h1>Branches staging</h1>
+        <span>
+            <button type="button" id="refresh" title="Rafraîchir maintenant">⟳</button>
+            <button type="button" id="options" title="Paramètres">⚙</button>
+        </span>
+    </header>
+    <ul id="list"></ul>
+    <p id="empty" hidden>
+        Aucune donnée pour l'instant. Ouvre un projet sur
+        <a href="https://www.odoo.sh/project" target="_blank" rel="noreferrer">odoo.sh</a>
+        pour que l'extension lise les échéances.
+    </p>
+    <footer id="footer"></footer>
+    <script src="../common/workdays.js"></script>
+    <script src="../common/parse.js"></script>
+    <script src="../common/urgency.js"></script>
+    <script src="../common/settings.js"></script>
+    <script src="../common/api.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

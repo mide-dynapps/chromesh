@@ -1,0 +1,112 @@
+:root {
+    --bg: #ffffff;
+    --fg: #1f2329;
+    --muted: #6c757d;
+    --line: #e4e7ea;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1b1f24;
+        --fg: #e9ecef;
+        --muted: #9aa3ab;
+        --line: #2f353c;
+    }
+}
+
+body {
+    width: 360px;
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+h1 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+header button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+ul {
+    max-height: 420px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+}
+
+li:hover {
+    background: rgba(127, 127, 127, 0.1);
+}
+
+.chip {
+    flex-shrink: 0;
+    min-width: 62px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.chip.ok { background: rgba(40, 167, 69, 0.18); color: #2f9e44; }
+.chip.warning { background: rgba(245, 159, 0, 0.2); color: #b26a00; }
+.chip.critical { background: #d9480f; color: #fff; }
+.chip.expired { background: #6c757d; color: #fff; }
+
+.meta {
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.branch {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail,
+.project {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+p {
+    margin: 0;
+    padding: 16px 12px;
+    color: var(--muted);
+}
+
+footer {
+    padding: 7px 12px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 11px;
+}

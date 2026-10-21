@@ -1,0 +1,140 @@
+/* Chromesh — all selectors are namespaced csh- to coexist with Odoo Toolbox. */
+
+.csh-badge {
+    flex-shrink: 0;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    cursor: help;
+}
+
+.csh-badge.csh-ok {
+    background: rgba(40, 167, 69, 0.18);
+    color: #6fd48a;
+}
+
+.csh-badge.csh-warning {
+    background: rgba(255, 159, 10, 0.2);
+    color: #ffb84d;
+}
+
+.csh-badge.csh-critical {
+    background: #d9480f;
+    color: #fff;
+}
+
+.csh-badge.csh-expired {
+    background: #6c757d;
+    color: #fff;
+    text-decoration: line-through;
+}
+
+.csh-stage-summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #d9480f;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: help;
+}
+
+.csh-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-left: 4px solid currentColor;
+    font-size: 13px;
+}
+
+.csh-banner.csh-warning {
+    background: #fff4e0;
+    border-color: #f59f00;
+    color: #8a5200;
+}
+
+.csh-banner.csh-critical {
+    background: #ffe8de;
+    border-color: #d9480f;
+    color: #8c2d05;
+}
+
+.csh-banner.csh-expired {
+    background: #eceef0;
+    border-color: #6c757d;
+    color: #343a40;
+}
+
+.csh-banner-chip {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: currentColor;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.csh-banner.csh-warning .csh-banner-chip {
+    color: #fff4e0;
+}
+
+.csh-banner.csh-critical .csh-banner-chip {
+    color: #ffe8de;
+}
+
+.csh-banner.csh-expired .csh-banner-chip {
+    color: #eceef0;
+}
+
+.csh-banner-text {
+    flex-grow: 1;
+}
+
+.csh-banner-action {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.csh-banner-action:hover {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+.csh-notice {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.csh-notice.csh-warning {
+    background: #fff4e0;
+}
+
+.csh-notice.csh-critical {
+    background: #ffe8de;
+    color: #8c2d05;
+}
+
+.csh-notice.csh-expired {
+    background: #eceef0;
+    color: #343a40;
+}

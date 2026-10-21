@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Chromesh",
+  "version": "0.1.0",
+  "description": "Alerte sur l'expiration des builds staging Odoo.sh, comptee en jours ouvres.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://www.odoo.sh/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "src/options/options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.odoo.sh/project/*"
+      ],
+      "js": [
+        "src/common/workdays.js",
+        "src/common/parse.js",
+        "src/common/urgency.js",
+        "src/common/settings.js",
+        "src/common/api.js",
+        "src/content/content.js"
+      ],
+      "css": [
+        "src/content/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

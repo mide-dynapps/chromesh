@@ -1,0 +1,384 @@
+<title>Chromesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --midnight:#050543; --violet:#951CF3; --carmine:#FF575D; --orange:#FF7759; --tangerine:#FF7E23;
+  --deep:#030330;
+  --snow:#F5F5FA; --off-white:#F6F5F8; --white:#FFFFFF;
+  --tw:rgba(255,255,255,.92); --td:rgba(255,255,255,.54); --tdd:rgba(255,255,255,.28); --lm:#7272A8;
+  --grey-100:#E8E7EC; --grey-200:#CDCBD4; --grey-400:#9290A6; --grey-600:#65637A;
+  --grad: linear-gradient(45deg, var(--violet) 0%, var(--carmine) 52%, var(--orange) 100%);
+  --grad-h: linear-gradient(90deg, var(--violet) 0%, var(--carmine) 52%, var(--orange) 100%);
+  --grad-v: linear-gradient(180deg, var(--violet) 0%, var(--carmine) 52%, var(--orange) 100%);
+  --sidebar-w: 280px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px; scroll-behavior:smooth}
+body{font-family:'Readex Pro',system-ui,sans-serif;background:var(--snow);color:var(--midnight);-webkit-font-smoothing:antialiased;line-height:1.55}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--violet);outline-offset:3px;border-radius:4px}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w); z-index:100;
+  background:var(--midnight); border-right:1px solid rgba(255,255,255,0.06);
+  display:flex; flex-direction:column; overflow-y:auto;
+}
+.sidebar::after{content:'';position:absolute;top:0;bottom:0;right:0;width:1px;background:var(--grad-v);opacity:.4}
+.sidebar-brand{padding:1.6rem 1.6rem 1.4rem;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sidebar-brand svg{height:22px;width:auto;display:block}
+.sidebar-meta{padding:1.4rem 1.6rem 1rem}
+.sidebar-meta .eyebrow{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--lm)}
+.sidebar-meta .doc-title{margin-top:.4rem;font-size:.95rem;font-weight:600;color:var(--tw);line-height:1.35}
+.sidebar-meta .doc-sub{margin-top:.4rem;font-size:.78rem;color:var(--td)}
+.sidebar nav{padding:.8rem 0 1.5rem;flex:1;display:flex;flex-direction:column}
+.sidebar-section-label{padding:.9rem 1.6rem .4rem;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--tdd)}
+.sidebar nav a{display:flex;align-items:center;gap:.7rem;padding:.6rem 1.6rem;font-size:.85rem;font-weight:400;color:var(--td);border-left:2px solid transparent;transition:color .2s ease,background .2s ease,border-color .2s ease}
+.sidebar nav a:hover{color:var(--tw);background:rgba(255,255,255,.03)}
+.sidebar nav a.active{color:var(--tw);background:rgba(255,87,93,.06);border-left-color:var(--carmine);font-weight:500}
+.sidebar-foot{padding:1.2rem 1.6rem;border-top:1px solid rgba(255,255,255,0.06);font-size:.7rem;color:var(--lm);display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.sidebar-foot .grad-dot{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w)}
+section{padding:5.5rem 3.5rem; scroll-margin-top:1.5rem; position:relative}
+.wrap{max-width:920px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:1.4rem}
+
+/* HERO */
+.hero{
+  min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end;
+  padding:6rem 3.5rem 4rem; background:var(--midnight); color:var(--tw);
+  position:relative; overflow:hidden; align-items:flex-start; gap:0;
+}
+.hero::before{content:'';position:absolute;top:-30%;right:-15%;width:60vw;height:60vw;border-radius:50%;background:radial-gradient(circle,rgba(149,28,243,.10) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-25%;left:-10%;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(circle,rgba(255,87,93,.08) 0%,transparent 70%);pointer-events:none}
+.hero > *{position:relative;z-index:1}
+.hero .badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .9rem;border-radius:100px;background:rgba(255,87,93,.10);border:1px solid rgba(255,87,93,.22);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--carmine);width:fit-content}
+.hero h1{font-size:clamp(2.4rem,4.8vw,3.6rem);font-weight:700;line-height:1.08;margin:1.4rem 0 1.1rem;max-width:20ch;text-wrap:balance}
+.hero h1 .accent{color:var(--tangerine)}
+.hero .lede{font-size:1.05rem;color:var(--td);max-width:62ch;line-height:1.6}
+.hero .meta{margin-top:2.4rem;display:flex;gap:2.4rem;flex-wrap:wrap;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.08);width:100%}
+.hero .meta .item .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--tdd);font-weight:500}
+.hero .meta .item .val{font-size:.92rem;color:var(--tw);margin-top:.3rem;font-weight:500}
+.hero .cta{margin-top:2rem}
+
+/* CTA */
+.btn{display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 1.5rem;border-radius:10px;background:var(--grad-h);color:var(--white);font-weight:600;font-size:.95rem;font-family:inherit;border:none;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 6px 22px rgba(149,28,243,.28)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(149,28,243,.36)}
+.btn .size{font-weight:400;opacity:.8;font-size:.85rem}
+.btn-note{margin-top:.7rem;font-size:.78rem;color:var(--td)}
+
+/* SECTION CHROME */
+.eyebrow-s{font-size:11px;font-weight:500;letter-spacing:.22em;color:var(--grey-400);text-transform:uppercase}
+h2{font-size:clamp(1.7rem,2.4vw,2.2rem);font-weight:600;line-height:1.15;text-wrap:balance}
+h2 .accent{color:var(--carmine)}
+h3{font-size:1.1rem;font-weight:600;color:var(--midnight)}
+.section-lede{font-size:.98rem;color:var(--grey-600);max-width:64ch;line-height:1.6}
+.on-dark{background:var(--midnight);color:var(--tw)}
+.on-dark .section-lede{color:var(--td)}
+.on-dark h3{color:var(--tw)}
+.on-dark .eyebrow-s{color:var(--tdd)}
+
+/* PROSE */
+.prose{display:flex;flex-direction:column;gap:1rem}
+.prose p{font-size:1rem;line-height:1.7;color:var(--midnight);max-width:64ch}
+.on-dark .prose p{color:var(--tw)}
+
+/* QUOTE */
+.pull{border-left:3px solid var(--carmine);padding:.3rem 0 .3rem 1.2rem;font-size:1.02rem;color:var(--grey-600);font-style:italic;max-width:60ch}
+.on-dark .pull{color:var(--td)}
+
+/* CODE */
+code{font-family:'SFMono-Regular',Consolas,monospace;font-size:.88em;background:var(--off-white);padding:.12rem .38rem;border-radius:4px;color:var(--violet);word-break:break-word}
+.on-dark code{background:rgba(255,255,255,.08);color:var(--tangerine)}
+pre{background:var(--midnight);color:var(--tw);padding:1.1rem 1.2rem;border-radius:10px;overflow-x:auto;font-size:.85rem;line-height:1.5}
+pre code{background:transparent;color:inherit;padding:0;word-break:normal}
+
+/* TABLE */
+.table-scroll{overflow-x:auto}
+table.data{width:100%;border-collapse:collapse;font-size:.92rem;border:1px solid var(--grey-100);background:var(--white)}
+table.data th, table.data td{padding:.7rem 1rem;border-bottom:1px solid var(--grey-100);text-align:left;vertical-align:top}
+table.data th{background:var(--off-white);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--grey-600)}
+table.data tr:last-child td{border-bottom:none}
+
+/* PASTILLES — l'objet même de l'extension */
+.pill{display:inline-flex;align-items:center;padding:.14rem .55rem;border-radius:100px;font-size:.72rem;font-weight:600;letter-spacing:.04em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill-ok{background:#E3F6EC;color:#1B6B41}
+.pill-warn{background:#FFF0E0;color:#A2520B}
+.pill-crit{background:#FFE6E7;color:#B51E24}
+.pill-gone{background:var(--grey-100);color:var(--grey-600);text-decoration:line-through}
+
+/* STEPS — vraie séquence, donc vraiment numérotée */
+.steps{display:flex;flex-direction:column;gap:1.5rem;counter-reset:step;list-style:none}
+.steps > li{display:grid;grid-template-columns:2.3rem 1fr;gap:1.1rem;align-items:start}
+.steps > li::before{
+  counter-increment:step;content:counter(step);
+  width:2.3rem;height:2.3rem;border-radius:50%;background:var(--grad);color:var(--white);
+  display:flex;align-items:center;justify-content:center;font-size:.92rem;font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.steps .body{display:flex;flex-direction:column;gap:.5rem;padding-top:.25rem;min-width:0}
+.steps .body p{font-size:.96rem;color:var(--grey-600);line-height:1.6;max-width:62ch}
+.steps .body strong{color:var(--midnight);font-weight:600}
+
+/* BULLET LIST */
+.b-list{display:flex;flex-direction:column;gap:.7rem;list-style:none}
+.b-list li{padding-left:1.5rem;position:relative;font-size:.95rem;color:var(--grey-600);line-height:1.6;max-width:64ch}
+.b-list li::before{content:'';position:absolute;left:0;top:.55em;width:8px;height:8px;border-radius:2px;background:var(--grad)}
+.b-list li strong{color:var(--midnight);font-weight:600}
+.on-dark .b-list li{color:var(--td)}
+.on-dark .b-list li strong{color:var(--tw)}
+
+/* CALLOUT */
+.callout{background:var(--white);border:1px solid var(--grey-100);border-left:3px solid var(--tangerine);border-radius:0 10px 10px 0;padding:1.1rem 1.3rem;display:flex;flex-direction:column;gap:.45rem}
+.callout .t{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tangerine)}
+.callout p{font-size:.93rem;color:var(--grey-600);line-height:1.6;max-width:64ch}
+
+/* FOOTER */
+.footer-grad{height:3px;background:var(--grad-h)}
+footer{padding:1.6rem 3.5rem;background:var(--deep);color:var(--lm);font-size:.72rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+footer .left strong{color:var(--tw);font-weight:500}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .btn{transition:none}
+  .btn:hover{transform:none}
+}
+
+/* RESPONSIVE */
+.menu-btn{position:fixed;top:1rem;left:1rem;z-index:101;background:var(--midnight);color:var(--tw);border:1px solid rgba(255,255,255,.1);padding:.5rem .8rem;border-radius:8px;font-size:.85rem;cursor:pointer;font-family:inherit}
+@media(min-width:761px){.menu-btn{display:none}}
+@media(max-width:1100px){:root{--sidebar-w:240px} section,.hero,footer{padding-left:2.4rem;padding-right:2.4rem}}
+@media(max-width:760px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s ease;width:260px}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  section{padding:4rem 1.5rem}
+  .hero{padding:5rem 1.5rem 3rem;min-height:92vh}
+  footer{padding:1.25rem 1.5rem;flex-direction:column;gap:.5rem;text-align:center}
+}
+</style>
+
+<button class="menu-btn" type="button" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menu</button>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <svg viewBox="0 0 573 110" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dynapps">
+      <path d="M187.854 81.4536C183.339 81.4536 179.248 80.311 175.583 78.0258C171.984 75.7405 169.137 72.5739 167.043 68.5258C165.014 64.4124 164 59.7766 164 54.6186C164 49.3952 165.014 44.7595 167.043 40.7113C169.137 36.6632 171.984 33.4639 175.583 31.1134C179.183 28.7629 183.273 27.5876 187.854 27.5876C190.276 27.5876 192.599 27.9794 194.824 28.7629C197.114 29.4811 199.143 30.4931 200.91 31.799C202.677 33.1048 204.117 34.5739 205.229 36.2062C206.342 37.7732 206.996 39.4055 207.193 41.1031L203.659 41.7887V8H217.5V80.4742H204.346L203.757 68.5258L206.506 68.9175C206.44 70.4845 205.884 72.0189 204.837 73.5206C203.79 75.0223 202.383 76.3935 200.616 77.634C198.914 78.8093 196.951 79.756 194.726 80.4742C192.566 81.1271 190.276 81.4536 187.854 81.4536ZM190.897 69.8969C193.58 69.8969 195.871 69.244 197.769 67.9381C199.732 66.6323 201.27 64.8368 202.383 62.5515C203.495 60.2663 204.051 57.622 204.051 54.6186C204.051 51.5498 203.495 48.8729 202.383 46.5876C201.27 44.2371 199.732 42.4416 197.769 41.201C195.871 39.8952 193.58 39.2423 190.897 39.2423C188.345 39.2423 186.087 39.8952 184.124 41.201C182.161 42.4416 180.623 44.2371 179.51 46.5876C178.463 48.8729 177.939 51.5498 177.939 54.6186C177.939 57.622 178.463 60.2663 179.51 62.5515C180.623 64.8368 182.161 66.6323 184.124 67.9381C186.087 69.244 188.345 69.8969 190.897 69.8969Z" fill="white"/>
+      <path d="M238.553 103L249.94 76.4588L250.136 84.5876L224.711 28.6649H240.516L253.277 58.732C253.736 59.7766 254.226 61.0498 254.75 62.5515C255.273 64.0533 255.666 65.4897 255.928 66.8608L253.572 67.8402C254.03 66.7302 254.488 65.457 254.946 64.0206C255.47 62.5842 255.993 61.0498 256.517 59.4175L267.413 28.6649H283.414L261.621 80.4742L252.688 103H238.553Z" fill="white"/>
+      <path d="M291.11 80.4742V28.6649H304.559L304.951 39.2423L302.203 40.4175C302.857 38.067 304.133 35.945 306.031 34.0515C307.929 32.0928 310.187 30.5258 312.805 29.3505C315.422 28.1753 318.138 27.5876 320.952 27.5876C324.879 27.5876 328.151 28.3711 330.769 29.9381C333.452 31.5052 335.448 33.8883 336.757 37.0876C338.131 40.2217 338.818 44.1392 338.818 48.8402V80.4742H324.879V49.8196C324.879 47.4691 324.552 45.5103 323.897 43.9433C323.243 42.3763 322.261 41.2337 320.952 40.5155C319.644 39.7973 317.975 39.4708 315.946 39.5361C314.375 39.5361 312.936 39.7972 311.627 40.3196C310.318 40.7766 309.14 41.4622 308.093 42.3763C307.111 43.2904 306.358 44.335 305.835 45.5103C305.311 46.6856 305.05 47.9914 305.05 49.4278V80.4742H298.08C296.64 80.4742 295.331 80.4742 294.153 80.4742C292.975 80.4742 291.961 80.4742 291.11 80.4742Z" fill="white"/>
+      <path d="M381.135 80.4742V48.0567C381.135 45.3144 380.284 43.2251 378.582 41.7887C376.946 40.2869 374.721 39.5361 371.907 39.5361C369.224 39.5361 366.835 40.0584 364.741 41.1031C362.647 42.1478 360.683 43.7801 358.851 46L350.311 37.7732C353.452 34.5086 356.953 31.9948 360.814 30.232C364.741 28.4691 368.995 27.5876 373.576 27.5876C377.764 27.5876 381.396 28.2405 384.472 29.5464C387.613 30.8522 390.035 32.811 391.736 35.4227C393.438 38.0344 394.289 41.3316 394.289 45.3144V80.4742H381.135ZM366.901 81.4536C363.628 81.4536 360.651 80.8007 357.968 79.4949C355.35 78.189 353.256 76.3935 351.685 74.1082C350.18 71.7577 349.427 69.0155 349.427 65.8814C349.427 63.2045 349.918 60.854 350.9 58.8299C351.881 56.7405 353.321 55.043 355.219 53.7371C357.182 52.366 359.604 51.3213 362.483 50.6031C365.428 49.8849 368.831 49.5258 372.692 49.5258H388.006L387.123 58.8299H372.496C370.925 58.8299 369.518 58.9605 368.275 59.2217C367.097 59.4828 366.083 59.9072 365.232 60.4948C364.446 61.0825 363.825 61.768 363.367 62.5515C362.974 63.335 362.778 64.2491 362.778 65.2938C362.778 66.4038 363.072 67.3832 363.661 68.232C364.25 69.0808 365.035 69.7337 366.017 70.1907C367.064 70.6478 368.242 70.8763 369.551 70.8763C371.449 70.8763 373.249 70.5498 374.95 69.8969C376.717 69.244 378.288 68.3299 379.662 67.1546C381.036 65.9794 382.116 64.6409 382.902 63.1392L385.552 70.0928C384.178 72.3127 382.509 74.2715 380.546 75.9691C378.582 77.6667 376.455 79.0052 374.165 79.9845C371.874 80.9639 369.453 81.4536 366.901 81.4536Z" fill="white"/>
+      <path d="M407.02 102.021V28.6649H420.468L420.959 40.2217L418.407 39.3402C418.799 37.3161 419.879 35.4227 421.646 33.6598C423.479 31.8969 425.736 30.4605 428.42 29.3505C431.103 28.2405 433.917 27.6856 436.862 27.6856C441.377 27.6856 445.369 28.8282 448.838 31.1134C452.372 33.3986 455.153 36.5653 457.182 40.6134C459.211 44.6615 460.225 49.3299 460.225 54.6186C460.225 59.7113 459.211 64.2818 457.182 68.3299C455.153 72.378 452.372 75.5773 448.838 77.9278C445.304 80.2131 441.312 81.3557 436.862 81.3557C433.851 81.3557 430.972 80.768 428.223 79.5928C425.54 78.4175 423.249 76.9158 421.352 75.0876C419.454 73.2595 418.276 71.268 417.818 69.1134L421.057 67.7423V102.021H407.02ZM433.72 69.4072C436.338 69.4072 438.596 68.7869 440.494 67.5464C442.457 66.3058 443.962 64.5756 445.009 62.3557C446.122 60.0705 446.678 57.4914 446.678 54.6186C446.678 51.6804 446.122 49.1014 445.009 46.8814C443.962 44.5962 442.457 42.8333 440.494 41.5928C438.596 40.3522 436.338 39.732 433.72 39.732C431.103 39.732 428.812 40.3522 426.849 41.5928C424.886 42.8333 423.348 44.5636 422.235 46.7835C421.123 49.0034 420.566 51.6151 420.566 54.6186C420.566 57.4914 421.123 60.0705 422.235 62.3557C423.348 64.5756 424.886 66.3058 426.849 67.5464C428.812 68.7869 431.103 69.4072 433.72 69.4072Z" fill="white"/>
+      <path d="M470.966 102.021V28.6649H484.414L484.905 40.2217L482.353 39.3402C482.746 37.3161 483.825 35.4227 485.592 33.6598C487.425 31.8969 489.683 30.4605 492.366 29.3505C495.049 28.2405 497.863 27.6856 500.808 27.6856C505.324 27.6856 509.316 28.8282 512.784 31.1134C516.318 33.3986 519.099 36.5653 521.128 40.6134C523.157 44.6615 524.171 49.3299 524.171 54.6186C524.171 59.7113 523.157 64.2818 521.128 68.3299C519.099 72.378 516.318 75.5773 512.784 77.9278C509.25 80.2131 505.258 81.3557 500.808 81.3557C497.798 81.3557 494.918 80.768 492.169 79.5928C489.486 78.4175 487.196 76.9158 485.298 75.0876C483.4 73.2595 482.222 71.268 481.764 69.1134L485.003 67.7423V102.021H470.966ZM497.667 69.4072C500.284 69.4072 502.542 68.7869 504.44 67.5464C506.403 66.3058 507.909 64.5756 508.956 62.3557C510.068 60.0705 510.624 57.4914 510.624 54.6186C510.624 51.6804 510.068 49.1014 508.956 46.8814C507.909 44.5962 506.403 42.8333 504.44 41.5928C502.542 40.3522 500.284 39.732 497.667 39.732C495.049 39.732 492.758 40.3522 490.795 41.5928C488.832 42.8333 487.294 44.5636 486.181 46.7835C485.069 49.0034 484.513 51.6151 484.513 54.6186C484.513 57.4914 485.069 60.0705 486.181 62.3557C487.294 64.5756 488.832 66.3058 490.795 67.5464C492.758 68.7869 495.049 69.4072 497.667 69.4072Z" fill="white"/>
+      <path d="M552.385 81.4536C547.608 81.4536 543.321 80.6701 539.526 79.1031C535.795 77.5361 532.752 75.3162 530.396 72.4433L539.133 65C541.162 67.1546 543.387 68.7216 545.808 69.701C548.295 70.6151 550.815 71.0722 553.367 71.0722C554.283 71.0722 555.134 70.9742 555.919 70.7783C556.705 70.5172 557.392 70.1907 557.981 69.799C558.57 69.3419 558.995 68.8196 559.257 68.232C559.584 67.6443 559.748 66.9588 559.748 66.1753C559.748 64.7388 559.159 63.6289 557.981 62.8454C557.457 62.4536 556.476 62.0292 555.036 61.5722C553.661 61.0498 551.894 60.4948 549.735 59.9072C546.397 59.0584 543.583 58.079 541.293 56.9691C539.002 55.7938 537.137 54.4553 535.697 52.9536C534.519 51.7131 533.603 50.2766 532.949 48.6443C532.36 47.012 532.065 45.2165 532.065 43.2577C532.065 40.1237 532.981 37.3814 534.814 35.0309C536.646 32.6804 539.068 30.8522 542.078 29.5464C545.154 28.2405 548.491 27.5876 552.091 27.5876C554.774 27.5876 557.359 27.9141 559.846 28.567C562.398 29.2199 564.754 30.1667 566.914 31.4072C569.139 32.5825 571.069 33.9863 572.706 35.6186L565.245 43.9433C564.067 42.768 562.725 41.756 561.22 40.9072C559.715 39.9931 558.21 39.2749 556.705 38.7526C555.199 38.1649 553.825 37.8711 552.582 37.8711C551.469 37.8711 550.455 37.9691 549.539 38.1649C548.688 38.3608 547.968 38.6873 547.379 39.1443C546.79 39.5361 546.332 40.0258 546.005 40.6134C545.743 41.201 545.612 41.854 545.612 42.5722C545.612 43.2904 545.776 43.9759 546.103 44.6289C546.495 45.2165 547.019 45.7715 547.673 46.2938C548.328 46.6856 549.375 47.1426 550.815 47.6649C552.32 48.1873 554.25 48.7749 556.606 49.4278C559.748 50.2766 562.398 51.2234 564.558 52.268C566.717 53.3127 568.452 54.5206 569.761 55.8918C570.939 57.067 571.757 58.4381 572.215 60.0052C572.738 61.5069 573 63.1392 573 64.9021C573 68.1014 572.084 70.9742 570.251 73.5206C568.484 76.0017 566.03 77.9605 562.889 79.3969C559.813 80.768 556.312 81.4536 552.385 81.4536Z" fill="white"/>
+      <path d="M54.7097 0.562951L54.3857 0C45.7021 0.0892027 37.1638 2.2387 29.4724 6.27174C21.781 10.3048 15.1563 16.1062 10.1428 23.1992H36.5743H67.6952L54.7097 0.562951ZM7.7299 28.0352H7.07336C2.80674 35.61 0.398038 44.0896 0.0452654 52.7769C-0.307507 61.4642 1.40572 70.1113 5.0441 78.0073L18.2854 55.0725L33.8544 28.112L7.7299 28.0352ZM8.0283 82.468L7.7043 83.0395C12.1245 90.5157 18.255 96.8361 25.5919 101.481C32.9289 106.127 41.2629 108.964 49.9094 109.761L36.6766 86.8264H36.634L21.0735 59.8658L8.0283 82.468ZM55.298 109.429L55.6305 110C64.3142 109.906 72.8518 107.754 80.5427 103.72C88.2336 99.6856 94.8584 93.8843 99.8734 86.7923H73.3993H42.2784L55.298 109.429ZM102.278 81.9563H102.934C107.196 74.3875 109.602 65.9154 109.955 57.2358C110.307 48.5562 108.597 39.9167 104.964 32.0269L91.7308 54.9787L76.1703 81.9392L102.278 81.9563ZM101.979 27.5235L102.312 26.9606C97.8897 19.4835 91.7578 13.1622 84.4197 8.51553C77.0815 3.8689 68.7463 1.02944 60.0983 0.230303L73.3396 23.1651L88.9001 50.1256L101.979 27.5235Z" fill="url(#g)"/>
+      <defs><linearGradient id="g" x1="-16.6116" y1="126.894" x2="131.099" y2="-21.6793" gradientUnits="userSpaceOnUse"><stop stop-color="#7B00DC"/><stop offset="0.62348" stop-color="#F13C42"/><stop offset="1" stop-color="#FF911F"/></linearGradient></defs>
+    </svg>
+  </div>
+  <div class="sidebar-meta">
+    <div class="eyebrow">Outil interne</div>
+    <div class="doc-title">Chromesh</div>
+    <div class="doc-sub">Extension Edge / Chrome · v0.1.0</div>
+  </div>
+  <nav>
+    <a href="#intro" data-target="intro">Ce que c'est</a>
+    <a href="#probleme" data-target="probleme">Le problème</a>
+    <a href="#affichage" data-target="affichage">Ce que tu vois</a>
+    <a href="#installer" data-target="installer">Installer</a>
+    <a href="#reglages" data-target="reglages">Réglages</a>
+    <a href="#limites" data-target="limites">Données et limites</a>
+    <a href="#support" data-target="support">Un souci ?</a>
+  </nav>
+  <div class="sidebar-foot">
+    <span>Dynapps · Usage interne</span>
+    <span class="grad-dot"></span>
+  </div>
+</aside>
+
+<div class="main">
+
+  <section class="hero" id="intro">
+    <div class="badge">Usage interne · Dynapps</div>
+    <h1>Ne perds plus un build staging <span class="accent">par inattention</span></h1>
+    <p class="lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh directement sur les branches, comptée en jours ouvrés. Installation en cinq minutes, pas de compte à créer.</p>
+    <div class="cta">
+      <a class="btn" id="dl" href="https://dynappsnv-my.sharepoint.com/:u:/g/personal/yann_leroux_dynapps_fr/IQAc93hjQFpzQo1EV5U35qTaAYKBIhOPRPUwO0cn9HCYUcU?e=cyNwtt" target="_blank" rel="noopener">Télécharger chromesh-0.1.0.zip <span class="size">· 30 Ko</span></a>
+      <p class="btn-note">Lien SharePoint Dynapps — connexion avec ton compte Dynapps requise.</p>
+    </div>
+    <div class="meta">
+      <div class="item"><div class="lbl">Version</div><div class="val">0.1.0</div></div>
+      <div class="item"><div class="lbl">Navigateurs</div><div class="val">Edge, Chrome</div></div>
+      <div class="item"><div class="lbl">Mise à jour</div><div class="val">19/10/2026</div></div>
+      <div class="item"><div class="lbl">Auteur</div><div class="val">Yann Leroux</div></div>
+    </div>
+  </section>
+
+  <section id="probleme">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Le problème</div>
+      <h2 class="reveal">Une phrase <span class="accent">enterrée</span> dans l'historique</h2>
+      <div class="prose reveal">
+        <p>Odoo.sh annonce la fin de vie d'un build staging par une ligne dans l'historique de la branche :</p>
+      </div>
+      <div class="pull reveal">« This staging build will be deleted on 18 October 2026. »</div>
+      <div class="prose reveal">
+        <p>Trois défauts. La phrase n'existe que sur la page de cette branche, donc personne ne la voit en passant. La date est en jours calendaires. Et une suppression annoncée un lundi doit en réalité être traitée le vendredi précédent.</p>
+        <p>Chromesh ne lit pas cette phrase. Il interroge l'API d'Odoo.sh, récupère la date brute, et la recompte en jours ouvrés.</p>
+      </div>
+      <h3 class="reveal">Le calcul</h3>
+      <ul class="b-list reveal">
+        <li><strong>Dernier jour utile</strong> = date de suppression moins un jour, ramenée au jour ouvré précédent.</li>
+        <li><strong>Week-ends toujours exclus.</strong> Jours fériés FR, BE ou LU selon ton réglage.</li>
+        <li><strong>Quand l'échéance recule</strong> à cause d'un week-end ou d'un férié, le message te le dit.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="affichage" class="on-dark">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Ce que tu vois</div>
+      <h2 class="reveal">Quatre endroits, <span class="accent" style="color:var(--tangerine)">une seule information</span></h2>
+      <p class="section-lede reveal">Rien à ouvrir, rien à cliquer : l'échéance apparaît là où tu travailles déjà.</p>
+      <ul class="b-list reveal">
+        <li><strong>Liste des branches.</strong> Une pastille sur chaque branche staging, colorée selon l'urgence.</li>
+        <li><strong>Page de la branche.</strong> Un bandeau avec l'échéance réelle et un bouton <code>Rebuild</code>.</li>
+        <li><strong>Icône de la barre d'outils.</strong> Un badge rouge compte les branches critiques ou expirées.</li>
+        <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence.</li>
+      </ul>
+      <h3 class="reveal">Exemple — suppression annoncée le dimanche 18/10</h3>
+      <div class="table-scroll reveal">
+        <table class="data">
+          <thead><tr><th scope="col">Jour</th><th scope="col">Pastille</th><th scope="col">Ce que ça veut dire</th></tr></thead>
+          <tbody>
+            <tr><td>mar. 13/10</td><td><span class="pill pill-warn">J-3</span></td><td>Trois jours ouvrés avant le dernier moment utile.</td></tr>
+            <tr><td>jeu. 15/10</td><td><span class="pill pill-crit">J-1</span></td><td>Demain, c'est la dernière chance.</td></tr>
+            <tr><td>ven. 16/10</td><td><span class="pill pill-crit">AUJOURD'HUI</span></td><td>Dernier jour ouvré avant la suppression du week-end.</td></tr>
+            <tr><td>sam. 17/10</td><td><span class="pill pill-gone">EXPIRÉ</span></td><td>Trop tard, le build part.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="section-lede reveal">Au-delà de cinq jours ouvrés, la pastille est verte : <span class="pill pill-ok">J-8</span></p>
+    </div>
+  </section>
+
+  <section id="installer">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Installer</div>
+      <h2 class="reveal">Cinq étapes, <span class="accent">une seule fois</span></h2>
+      <p class="section-lede reveal">L'extension n'est pas publiée sur le store : elle se charge depuis un dossier, en mode développeur.</p>
+      <ol class="steps reveal">
+        <li>
+          <div class="body">
+            <strong>Décompresse l'archive dans un dossier permanent.</strong>
+            <p>Par exemple <code>C:\Outils\chromesh</code>. Évite le dossier Téléchargements : le navigateur recharge l'extension depuis ce dossier à chaque démarrage, et le supprimer la désinstalle.</p>
+          </div>
+        </li>
+        <li>
+          <div class="body">
+            <strong>Ouvre la page des extensions.</strong>
+            <p><code>edge://extensions</code> dans Edge, <code>chrome://extensions</code> dans Chrome.</p>
+          </div>
+        </li>
+        <li>
+          <div class="body">
+            <strong>Active le mode développeur.</strong>
+            <p>L'interrupteur se trouve en bas à gauche de la page dans Edge, en haut à droite dans Chrome.</p>
+          </div>
+        </li>
+        <li>
+          <div class="body">
+            <strong>Charge l'extension non empaquetée.</strong>
+            <p>Clique le bouton, puis sélectionne le dossier décompressé — celui qui contient <code>manifest.json</code>. N'entre pas dans <code>src</code>.</p>
+          </div>
+        </li>
+        <li>
+          <div class="body">
+            <strong>Ouvre un projet Odoo.sh.</strong>
+            <p>Les pastilles apparaissent sur les branches staging. Clique l'icône Chromesh dans la barre d'outils pour le tableau de bord multi-projets.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="callout reveal">
+        <div class="t">Message au démarrage</div>
+        <p>Edge affichera « Désactiver les extensions en mode développeur » à chaque lancement. C'est le régime normal d'une extension non publiée. Ferme le message : l'extension reste active.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="reglages" style="background:var(--off-white)">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Réglages</div>
+      <h2 class="reveal">Clic droit sur l'icône, puis <span class="accent">Options</span></h2>
+      <ul class="b-list reveal">
+        <li><strong>Pays des jours fériés.</strong> France, Belgique ou Luxembourg. Pâques est calculée, aucun appel réseau.</li>
+        <li><strong>Seuils d'alerte.</strong> À partir de combien de jours ouvrés la pastille passe à l'orange, puis au rouge.</li>
+        <li><strong>Notifications.</strong> Activation, et heure à partir de laquelle elles peuvent tomber. Une par branche et par jour, jamais plus.</li>
+        <li><strong>Balayage multi-projets.</strong> À désactiver si tu as beaucoup de projets et que tu veux limiter les requêtes.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="limites">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Données et limites</div>
+      <h2 class="reveal">Ce qu'elle fait, et ce qu'elle <span class="accent">ne fait pas</span></h2>
+      <ul class="b-list reveal">
+        <li><strong>Elle ne lit que <code>www.odoo.sh</code>.</strong> Aucune autre page, aucun envoi vers l'extérieur.</li>
+        <li><strong>Elle utilise ta session Odoo.sh.</strong> Tu ne vois que les projets auxquels tu as déjà accès.</li>
+        <li><strong>Tout reste local.</strong> Les échéances sont mises en cache dans le stockage du navigateur ; les réglages se synchronisent avec ton profil.</li>
+        <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour en arrière-plan.</strong> Sans onglet, le popup affiche « données figées » plutôt que d'afficher une date périmée en silence.</li>
+      </ul>
+      <div class="callout reveal">
+        <div class="t">Version 0.1.0 — non vérifié</div>
+        <p>Les notifications système n'ont pas encore été déclenchées en conditions réelles. Le repli du worker vers un onglet, quand la collecte directe est bloquée, n'a pas été éprouvé non plus. Dis-moi si tu tombes dessus.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="support" class="on-dark">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Un souci ?</div>
+      <h2 class="reveal">Ce qu'il me faut pour <span class="accent" style="color:var(--tangerine)">corriger</span></h2>
+      <p class="section-lede reveal">Trois endroits où regarder, dans cet ordre.</p>
+      <ul class="b-list reveal">
+        <li><strong>La console de la page.</strong> <code>F12</code> sur la page Odoo.sh, onglet Console, lignes préfixées <code>[chromesh]</code>.</li>
+        <li><strong>La console du service worker.</strong> Sur <code>edge://extensions</code>, carte Chromesh, lien <code>service worker</code>.</li>
+        <li><strong>La dernière ligne du popup.</strong> Elle porte l'erreur, ou la mention « données figées ».</li>
+      </ul>
+      <div class="prose reveal">
+        <p>Envoie-moi ce que tu y vois, avec le nom du projet concerné. Pour recharger après un correctif : bouton ↻ sur la carte de l'extension, puis <code>F5</code> sur l'onglet Odoo.sh.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-grad"></div>
+  <footer>
+    <div class="left"><strong>Dynapps</strong> · Chromesh v0.1.0 · Usage interne</div>
+    <div>Yann Leroux · 19 octobre 2026</div>
+  </footer>
+
+</div>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: .12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+const navLinks = [...document.querySelectorAll('.sidebar nav a')];
+const setActive = (id) => navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === id));
+const spy = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+}, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+document.querySelectorAll('section[id]').forEach(s => spy.observe(s));
+
+navLinks.forEach(a => a.addEventListener('click', () => {
+  if (window.innerWidth <= 760) document.querySelector('.sidebar').classList.remove('open');
+}));
+</script>
