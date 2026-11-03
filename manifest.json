@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chromesh",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Alerte sur l'expiration des builds staging Odoo.sh, comptee en jours ouvres.",
   "permissions": [
     "storage",
@@ -33,6 +33,7 @@
   "content_scripts": [
     {
       "matches": [
+        "https://www.odoo.sh/project",
         "https://www.odoo.sh/project/*"
       ],
       "js": [

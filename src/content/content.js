@@ -119,13 +119,48 @@
             }
             return;
         }
+        const branchName = li.dataset.branchName;
         if (!badge) {
             badge = document.createElement("span");
+            badge.setAttribute("role", "button");
+            badge.tabIndex = 0;
+            badge.addEventListener("click", (event) => {
+                // La pastille est posee dans le lien de la branche : sans cela,
+                // le clic navigue au lieu d'exclure.
+                event.preventDefault();
+                event.stopPropagation();
+                ignoreBranch(branchName);
+            });
+            badge.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" && event.key !== " ") {
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                ignoreBranch(branchName);
+            });
             host.insertBefore(badge, host.querySelector(".o_branch_icon"));
         }
         badge.textContent = urgency.badgeLabel(branchState);
-        badge.title = urgency.describe(branchState);
+        badge.title = `${urgency.describe(branchState)}
+
+Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
         badge.className = `${PREFIX}-badge ${levelClass(branchState.level)}`;
+    }
+
+    /** Ajoute 'projet::branche' aux exclusions deja enregistrees. */
+    async function ignoreBranch(branchName) {
+        const { project } = parse.locationInfo(location.pathname);
+        if (!project || !branchName) {
+            return;
+        }
+        try {
+            await store.addIgnored(parse.cacheKey(project, branchName));
+            // storage.onChanged (sync) relit les reglages et relance le rendu :
+            // la pastille disparait d'elle-meme.
+        } catch (error) {
+            log("exclusion impossible", branchName, error);
+        }
     }
 
     function renderStageSummary(counts) {
@@ -148,6 +183,83 @@
         }
         summary.textContent = String(total);
         summary.title = `${counts.expired} branche(s) expirée(s), ${counts.critical} critique(s)`;
+    }
+
+    /**
+     * Pire etat parmi les branches staging connues d'un projet.
+     * Renvoie {state, branch, counts} ; state.level vaut UNKNOWN si le cache
+     * ne contient encore rien pour ce projet.
+     */
+    function worstForProject(projectName) {
+        const counts = { expired: 0, critical: 0, warning: 0, ok: 0, unknown: 0 };
+        let worst = null;
+        let worstBranch = null;
+        for (const [key, entry] of Object.entries(state.cache)) {
+            if (entry.project !== projectName) {
+                continue;
+            }
+            if (store.isIgnored(key, state.settings.ignored)) {
+                continue;
+            }
+            const branchState = stateFor(entry);
+            counts[branchState.level] += 1;
+            if (branchState.level === LEVELS.UNKNOWN) {
+                continue;
+            }
+            if (!worst || urgency.rank(branchState) < urgency.rank(worst)) {
+                worst = branchState;
+                worstBranch = entry.branch;
+            }
+        }
+        return { state: worst || { level: LEVELS.UNKNOWN }, branch: worstBranch, counts };
+    }
+
+    /** Bandeau en tete du bloc projet, sur la vue /project. */
+    function renderProjectCard(card, projectName) {
+        const { state: worst, branch, counts } = worstForProject(projectName);
+        let banner = card.querySelector(`.${PREFIX}-project-banner`);
+        const shown =
+            state.settings.showBanner &&
+            (worst.level === LEVELS.WARNING ||
+                worst.level === LEVELS.CRITICAL ||
+                worst.level === LEVELS.EXPIRED);
+        if (!shown) {
+            if (banner) {
+                banner.remove();
+            }
+            return;
+        }
+        if (!banner) {
+            banner = document.createElement("div");
+            card.insertBefore(banner, card.firstChild);
+        }
+        // La classe -banner porte les couleurs deja definies par niveau.
+        banner.className = `${PREFIX}-banner ${PREFIX}-project-banner ${levelClass(worst.level)}`;
+        banner.replaceChildren();
+
+        const chip = document.createElement("span");
+        chip.className = `${PREFIX}-banner-chip`;
+        chip.textContent = urgency.badgeLabel(worst);
+
+        const text = document.createElement("span");
+        text.className = `${PREFIX}-banner-text`;
+        const others = counts.expired + counts.critical + counts.warning - 1;
+        text.textContent =
+            others > 0
+                ? `${branch} + ${others} autre(s) branche(s) a surveiller`
+                : `${branch} : ${urgency.describe(worst)}`;
+
+        banner.append(chip, text);
+        banner.title = `${branch} — ${urgency.describe(worst)}`;
+    }
+
+    function renderProjectIndex() {
+        for (const card of parse.listProjectCards(document)) {
+            if (store.isProjectIgnored(card.name, state.settings.ignored)) {
+                continue;
+            }
+            renderProjectCard(card.element, card.name);
+        }
     }
 
     function renderBanner(branchState) {
@@ -210,6 +322,16 @@
         }
         state.rendering = true;
         try {
+            if (parse.isProjectIndex(location.pathname)) {
+                renderProjectIndex();
+                // Sans cache, la vue projet n'a rien a montrer : on force le
+                // balayage au lieu d'attendre la prochaine echeance.
+                if (!Object.keys(state.cache).length) {
+                    await scanAllProjects({ force: true });
+                }
+                return;
+            }
+
             const { project, branch } = parse.locationInfo(location.pathname);
             if (!project) {
                 return;
@@ -284,6 +406,10 @@
             }
             if (area === "local" && changes.branches) {
                 state.cache = changes.branches.newValue || {};
+                // La vue projet se peint depuis le cache seul : sans ce rendu,
+                // les bandeaux resteraient vides jusqu'au prochain changement
+                // de DOM.
+                scheduleRender();
             }
         });
 

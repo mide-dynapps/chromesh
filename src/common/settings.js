@@ -76,6 +76,26 @@
         await chrome.storage.sync.set(patch);
     }
 
+    /**
+     * Ajoute une regle d'exclusion ('projet::branche' ou 'projet') a celles
+     * deja enregistrees. Sans effet si la cle est deja couverte.
+     * Retourne la liste resultante.
+     */
+    async function addIgnored(key) {
+        const rule = String(key || "").trim();
+        if (!rule) {
+            return (await getSettings()).ignored;
+        }
+        const settings = await getSettings();
+        const ignored = settings.ignored || [];
+        if (isIgnored(rule, ignored) || ignored.some((line) => line.trim() === rule)) {
+            return ignored;
+        }
+        const next = [...ignored, rule];
+        await setSettings({ ignored: next });
+        return next;
+    }
+
     async function getBranches() {
         const data = await chrome.storage.local.get({ [CACHE_KEY]: {} });
         return data[CACHE_KEY];
@@ -132,6 +152,7 @@
         isProjectIgnored,
         getSettings,
         setSettings,
+        addIgnored,
         getBranches,
         putBranch,
         dropBranches,

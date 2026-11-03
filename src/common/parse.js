@@ -112,6 +112,35 @@
         return branches;
     }
 
+    /** True on the project index (/project or /project/), not on a project. */
+    function isProjectIndex(pathname) {
+        return /^\/project\/?$/.test(pathname || "");
+    }
+
+    /**
+     * Project blocks of the index page. The markup is not known upfront, so we
+     * start from the links to /project/<name> and climb to the nearest block
+     * that looks like a card. Returns [{name, element}], one entry per project,
+     * keeping the outermost block found for each.
+     */
+    const CARD_SELECTOR =
+        '.o_project_card, .o_paas_project, .card, [class*="project_card"], li, .col, .o_project';
+
+    function listProjectCards(scope) {
+        const cards = new Map();
+        scope.querySelectorAll('a[href^="/project/"]').forEach((anchor) => {
+            const name = /^\/project\/([^/?#]+)/.exec(anchor.getAttribute("href") || "")?.[1];
+            if (!name || cards.has(name)) {
+                return;
+            }
+            const card = anchor.closest(CARD_SELECTOR) || anchor.parentElement;
+            if (card) {
+                cards.set(decodeURIComponent(name), { name: decodeURIComponent(name), element: card });
+            }
+        });
+        return [...cards.values()];
+    }
+
     /** {project, branch} from /project/<project>/branches/<branch>/... */
     function locationInfo(pathname) {
         const m = /^\/project\/([^/]+)(?:\/branches\/([^/]+))?/.exec(pathname || "");
@@ -126,6 +155,8 @@
         findDeletionNotice,
         isLatestBuildDropped,
         listBranches,
+        isProjectIndex,
+        listProjectCards,
         locationInfo,
         cacheKey,
     };

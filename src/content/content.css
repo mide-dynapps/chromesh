@@ -10,7 +10,13 @@
     line-height: 16px;
     letter-spacing: 0.02em;
     white-space: nowrap;
-    cursor: help;
+    cursor: pointer;
+}
+
+.csh-badge:hover,
+.csh-badge:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 1px;
 }
 
 .csh-badge.csh-ok {
@@ -137,4 +143,12 @@
 .csh-notice.csh-expired {
     background: #eceef0;
     color: #343a40;
+}
+
+.csh-project-banner {
+    margin: 0 0 8px;
+    padding: 6px 10px;
+    gap: 8px;
+    border-radius: 4px;
+    font-size: 12px;
 }
