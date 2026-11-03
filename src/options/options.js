@@ -1,7 +1,7 @@
 (async function () {
     const { store } = globalThis.CHROMESH;
 
-    const CHECKBOXES = ["useHolidays", "notify", "showBadges", "showBanner", "scanAllProjects"];
+    const CHECKBOXES = ["useHolidays", "notify", "showBadges", "showBanner", "showProjectBanner", "scanAllProjects"];
     const NUMBERS = ["criticalDays", "warningDays", "notifyHour", "refreshHours"];
 
     const settings = await store.getSettings();

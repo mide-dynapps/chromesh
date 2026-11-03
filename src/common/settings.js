@@ -15,6 +15,7 @@
         refreshHours: 6,
         showBadges: true,
         showBanner: true,
+        showProjectBanner: true,
         scanAllProjects: true,
         ignored: [],
     };

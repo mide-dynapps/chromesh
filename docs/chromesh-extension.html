@@ -69,6 +69,8 @@ section{padding:5.5rem 3.5rem; scroll-margin-top:1.5rem; position:relative}
 .btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(149,28,243,.36)}
 .btn .size{font-weight:400;opacity:.8;font-size:.85rem}
 .btn-note{margin-top:.7rem;font-size:.78rem;color:var(--td)}
+.btn-note a,.b-list a{text-decoration:underline;text-underline-offset:2px;font-weight:500}
+.btn-note a:hover,.b-list a:hover{color:var(--tangerine)}
 
 /* SECTION CHROME */
 .eyebrow-s{font-size:11px;font-weight:500;letter-spacing:.22em;color:var(--grey-400);text-transform:uppercase}
@@ -184,7 +186,7 @@ footer .left strong{color:var(--tw);font-weight:500}
   <div class="sidebar-meta">
     <div class="eyebrow">Outil interne</div>
     <div class="doc-title">Chromesh</div>
-    <div class="doc-sub">Extension Edge / Chrome · v0.1.0</div>
+    <div class="doc-sub">Extension Edge / Chrome · v0.2.4</div>
   </div>
   <nav>
     <a href="#intro" data-target="intro">Ce que c'est</a>
@@ -192,6 +194,7 @@ footer .left strong{color:var(--tw);font-weight:500}
     <a href="#affichage" data-target="affichage">Ce que tu vois</a>
     <a href="#installer" data-target="installer">Installer</a>
     <a href="#reglages" data-target="reglages">Réglages</a>
+    <a href="#nouveautes" data-target="nouveautes">Nouveautés</a>
     <a href="#limites" data-target="limites">Données et limites</a>
     <a href="#support" data-target="support">Un souci ?</a>
   </nav>
@@ -208,13 +211,13 @@ footer .left strong{color:var(--tw);font-weight:500}
     <h1>Ne perds plus un build staging <span class="accent">par inattention</span></h1>
     <p class="lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh directement sur les branches, comptée en jours ouvrés. Installation en cinq minutes, pas de compte à créer.</p>
     <div class="cta">
-      <a class="btn" id="dl" href="https://dynappsnv-my.sharepoint.com/:u:/g/personal/yann_leroux_dynapps_fr/IQAc93hjQFpzQo1EV5U35qTaAYKBIhOPRPUwO0cn9HCYUcU?e=cyNwtt" target="_blank" rel="noopener">Télécharger chromesh-0.1.0.zip <span class="size">· 30 Ko</span></a>
-      <p class="btn-note">Lien SharePoint Dynapps — connexion avec ton compte Dynapps requise.</p>
+      <a class="btn" id="dl" href="https://github.com/yale-dynapps/chromesh/releases/download/0.2.4/chromesh-0.2.4.zip" target="_blank" rel="noopener">Télécharger chromesh-0.2.4.zip <span class="size">· 38 Ko</span></a>
+      <p class="btn-note">Depuis le dépôt GitHub — plus de lien SharePoint, il ne sera plus mis à jour. Les versions précédentes et les notes de version sont sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a>.</p>
     </div>
     <div class="meta">
-      <div class="item"><div class="lbl">Version</div><div class="val">0.1.0</div></div>
+      <div class="item"><div class="lbl">Version</div><div class="val">0.2.4</div></div>
       <div class="item"><div class="lbl">Navigateurs</div><div class="val">Edge, Chrome</div></div>
-      <div class="item"><div class="lbl">Mise à jour</div><div class="val">19/10/2026</div></div>
+      <div class="item"><div class="lbl">Mise à jour</div><div class="val">03/11/2026</div></div>
       <div class="item"><div class="lbl">Auteur</div><div class="val">Yann Leroux</div></div>
     </div>
   </section>
@@ -246,10 +249,11 @@ footer .left strong{color:var(--tw);font-weight:500}
       <h2 class="reveal">Quatre endroits, <span class="accent" style="color:var(--tangerine)">une seule information</span></h2>
       <p class="section-lede reveal">Rien à ouvrir, rien à cliquer : l'échéance apparaît là où tu travailles déjà.</p>
       <ul class="b-list reveal">
-        <li><strong>Liste des branches.</strong> Une pastille sur chaque branche staging, colorée selon l'urgence.</li>
+        <li><strong>Liste des branches.</strong> Une pastille sur chaque branche staging, colorée selon l'urgence. Un bouton <code>⊘</code> au survol pour exclure la branche ou le projet entier.</li>
         <li><strong>Page de la branche.</strong> Un bandeau avec l'échéance réelle et un bouton <code>Rebuild</code>.</li>
+        <li><strong>Liste des projets</strong> (<code>/project</code>). Un bandeau en kanban, une pastille dans la cellule du nom en vue liste, au niveau de la pire branche staging du projet.</li>
         <li><strong>Icône de la barre d'outils.</strong> Un badge rouge compte les branches critiques ou expirées.</li>
-        <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence.</li>
+        <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence, avec les boutons <code>⊘ branche</code> et <code>⊘ projet</code>.</li>
       </ul>
       <h3 class="reveal">Exemple — suppression annoncée le dimanche 18/10</h3>
       <div class="table-scroll reveal">
@@ -324,6 +328,26 @@ footer .left strong{color:var(--tw);font-weight:500}
     </div>
   </section>
 
+  <section id="nouveautes" style="background:var(--off-white)">
+    <div class="wrap">
+      <div class="eyebrow-s reveal">Nouveautés</div>
+      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.2.4</span></h2>
+      <p class="section-lede reveal">Depuis la première version : la vue d'ensemble des projets, les exclusions au clic, un canal de distribution stable, et des réglages d'affichage séparés.</p>
+      <ul class="b-list reveal">
+        <li><strong>Le ZIP est sur GitHub.</strong> Chaque version publie son archive sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a> du dépôt. Le lien SharePoint n'est plus alimenté : va chercher la dernière version là-bas.</li>
+        <li><strong>La page <code>/project</code> est couverte</strong> (0.2.0, 0.2.1). Bandeau sur chaque carte en kanban, pastille dans la cellule du nom en vue liste. Tu vois quels projets sont en souffrance sans ouvrir aucun d'eux.</li>
+        <li><strong>Exclure une branche ou un projet en deux clics</strong> (0.2.0, 0.2.2). Bouton <code>⊘</code> au survol d'une branche, et dans le popup. Le menu propose « Exclure la branche » ou « Exclure le projet » ; un projet exclu n'est même plus interrogé. Le retrait reste manuel, depuis les options.</li>
+        <li><strong>Le badge se recalcule tout de suite</strong> (0.2.2) après une exclusion, sans attendre l'alarme horaire.</li>
+        <li><strong>Deux correctifs d'affichage</strong> (0.2.3). Rien n'apparaissait quand Odoo.sh redirige vers <code>/project?debug=1</code>. Et sur la page d'un projet, les boutons <code>⊘</code> et le compteur Staging manquaient tant que tu ne touchais pas à la page.</li>
+        <li><strong>Deux réglages d'affichage séparés</strong> (0.2.4). « Bandeau sur la page de la branche » ne commande plus la vue <code>/project</code> : celle-ci a sa propre case, « Bandeau et pastille dans la liste des projets », active par défaut.</li>
+      </ul>
+      <div class="callout reveal">
+        <div class="t">Mise à jour depuis une version antérieure</div>
+        <p>Décompresse la nouvelle archive <strong>par-dessus</strong> ton dossier existant, puis clique ↻ sur la carte de l'extension dans <code>edge://extensions</code>. Tes réglages et tes exclusions sont conservés.</p>
+      </div>
+    </div>
+  </section>
+
   <section id="limites">
     <div class="wrap">
       <div class="eyebrow-s reveal">Données et limites</div>
@@ -335,8 +359,8 @@ footer .left strong{color:var(--tw);font-weight:500}
         <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour en arrière-plan.</strong> Sans onglet, le popup affiche « données figées » plutôt que d'afficher une date périmée en silence.</li>
       </ul>
       <div class="callout reveal">
-        <div class="t">Version 0.1.0 — non vérifié</div>
-        <p>Les notifications système n'ont pas encore été déclenchées en conditions réelles. Le repli du worker vers un onglet, quand la collecte directe est bloquée, n'a pas été éprouvé non plus. Dis-moi si tu tombes dessus.</p>
+        <div class="t">Version 0.2.4 — ce qui n'est pas vérifié</div>
+        <p>Les pastilles, les bandeaux et le compteur ont tourné dans Chrome le 03/11/2026. La 0.2.4 n'a été rechargée dans aucun navigateur. N'ont pas été éprouvés : le clic dans le menu <code>⊘</code>, la vue liste de <code>/project</code>, Edge, les notifications système, et le repli du worker vers un onglet quand la collecte directe est bloquée. Dis-moi si tu tombes dessus.</p>
       </div>
     </div>
   </section>
@@ -359,8 +383,8 @@ footer .left strong{color:var(--tw);font-weight:500}
 
   <div class="footer-grad"></div>
   <footer>
-    <div class="left"><strong>Dynapps</strong> · Chromesh v0.1.0 · Usage interne</div>
-    <div>Yann Leroux · 19 octobre 2026</div>
+    <div class="left"><strong>Dynapps</strong> · Chromesh v0.2.4 · Usage interne</div>
+    <div>Yann Leroux · 3 novembre 2026</div>
   </footer>
 
 </div>
