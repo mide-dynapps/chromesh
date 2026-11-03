@@ -73,12 +73,17 @@ jobs:
             $notes = "Version $version. Voir CHANGELOG.md."
           }
 
-          $install = @'
+          # Pas de here-string : sa fermeture doit tenir en colonne 0, ce qui
+          # sort du bloc YAML indenté et casse le fichier.
+          $install = @(
+            '',
+            '## Installation',
+            '',
+            ('Le ZIP ne s''installe pas directement : Edge et Chrome refusent une ' +
+             'archive. Décompressez-la, puis chargez le **dossier** obtenu via ' +
+             '« Charger l''extension non empaquetée », mode développeur activé.')
+          ) -join "`n"
 
-## Installation
-
-Le ZIP ne s'installe pas directement : Edge et Chrome refusent une archive. Décompressez-la, puis chargez le **dossier** obtenu via « Charger l'extension non empaquetée », mode développeur activé.
-'@
           ($notes + "`n" + $install) | Out-File notes.md -Encoding utf8NoBOM
 
       - name: Publier la release
