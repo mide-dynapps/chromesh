@@ -64,7 +64,7 @@ Coût : une requête `/app/projects`, puis une `branches` par projet et une
 | Liste des projets (`/project`) | Bandeau sur la carte en kanban, pastille dans la cellule du nom en vue liste, au niveau de la pire branche staging du projet |
 | Phrase d'origine | Surlignée dans l'historique |
 | Icône de la barre d'outils | Badge rouge = nombre de branches critiques ou expirées |
-| Popup | Tableau de bord multi-projets, trié par urgence. Boutons `⊘ branche` / `⊘ projet` au survol d'une ligne |
+| Popup | Tableau de bord multi-projets, trié par urgence. Filtre par texte (projet ou branche) et par niveau, remis à zéro à chaque ouverture. Boutons `⊘ branche` / `⊘ projet` au survol d'une ligne |
 | Notification système | Une par branche et par jour, pas avant l'heure configurée |
 
 ## Modèle de calcul

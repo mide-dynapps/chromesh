@@ -6,6 +6,31 @@ en haut.
 Statut de test : aucune version n'a encore été validée dans un navigateur
 au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 
+## 0.3.0 — 03/11/2026
+
+### Ajouté
+- Popup : barre de filtre au-dessus de la liste. Recherche par sous-chaîne
+  dans le projet ou la branche, sans tenir compte de la casse ni des accents.
+  Boutons par niveau (Expiré, Critique, Attention, OK) avec leur compteur, qui
+  masquent ou affichent le niveau.
+- Le filtre repart à zéro à chaque ouverture du popup. `Échap` ou `✕` l'efface.
+  Il ne touche pas aux exclusions (`ignored`).
+- Pied du popup : nombre de branches masquées par le filtre.
+
+### Vérifié
+- `node --check` sur tous les fichiers de `src/`.
+- Sous Node, `src/popup/filter.js` : casse, accents, recherche sur projet et
+  branche, combinaison texte + niveau, comptes par niveau (12 assertions).
+- Dans Chrome, le 03/11/2026, `popup.html` servi en `localhost` avec un
+  `chrome.storage` simulé (6 branches fictives) : rendu de la barre, focus à
+  l'ouverture, recherche « ETE » et « acme », bouton de niveau seul et combiné
+  au texte, message « Aucune branche ne correspond », `Échap`, `✕`,
+  `⊘ branche` avec filtre actif (filtre conservé), focus gardé sur un bouton
+  de niveau après clic. Aucune erreur console.
+- Non testé : popup réel de l'extension (Chrome refuse les URL
+  `chrome-extension://` aux outils d'automatisation), dont `Échap` qui ne
+  doit pas fermer le popup quand un filtre est actif ; Edge.
+
 ## 0.2.4 — 03/11/2026
 
 ### Ajouté

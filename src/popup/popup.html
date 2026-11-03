@@ -13,7 +13,15 @@
             <button type="button" id="options" title="Paramètres">⚙</button>
         </span>
     </header>
+    <div id="filters" class="filters" hidden>
+        <span class="search">
+            <input type="search" id="search" placeholder="Projet ou branche…" autocomplete="off" aria-label="Filtrer par projet ou branche">
+            <button type="button" id="clear" title="Effacer le filtre (Échap)" hidden>✕</button>
+        </span>
+        <span id="levels" class="levels"></span>
+    </div>
     <ul id="list"></ul>
+    <p id="no-match" hidden>Aucune branche ne correspond au filtre.</p>
     <p id="empty" hidden>
         Aucune donnée pour l'instant. Ouvre un projet sur
         <a href="https://www.odoo.sh/project" target="_blank" rel="noreferrer">odoo.sh</a>
@@ -25,6 +33,7 @@
     <script src="../common/urgency.js"></script>
     <script src="../common/settings.js"></script>
     <script src="../common/api.js"></script>
+    <script src="filter.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>
