@@ -13,13 +13,18 @@ au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
   `/project?debug=1`. Le motif `https://www.odoo.sh/project` du manifeste ne
   couvre pas la chaîne de requête, donc le content script n'était pas injecté.
   Les deux motifs sont remplacés par `https://www.odoo.sh/project*`.
+- Page d'un projet : les boutons `⊘` et le compteur Staging manquaient au
+  premier affichage. Un rendu demandé pendant la collecte était abandonné ;
+  il est désormais reporté à la fin du rendu en cours.
 
 ### Vérifié
-- Dans Chrome, sur odoo.sh, le 03/11/2026 : la page charge directement
-  `/project?debug=1` (redirection serveur), 48 cartes kanban repérées par
-  `listProjectCards`, aucun élément `csh-` injecté. Sur
-  `/project/scopea?debug=1`, les pastilles sont bien posées.
-- Le correctif lui-même n'a pas encore été rechargé dans un navigateur.
+- Dans Chrome, le 03/11/2026, motif élargi chargé : 9 bandeaux posés sur
+  `/project?debug=1` (8 orange, 1 rouge).
+- Même jour, page `/project/moduleis` : 0 bouton `⊘` et pas de compteur au
+  chargement ; après une mutation DOM forcée, 2 boutons `⊘` et compteur à 1.
+- Report du rendu chargé dans Chrome : sur `/project/moduleis`, sans aucune
+  intervention, 2 boutons `⊘` (visibles au survol) et compteur Staging à 1.
+- Non testé : le clic dans le menu `⊘`, la vue liste de `/project`, Edge.
 
 ## 0.2.2 — 03/11/2026
 
