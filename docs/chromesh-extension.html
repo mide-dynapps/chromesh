@@ -186,7 +186,7 @@ footer .left strong{color:var(--tw);font-weight:500}
   <div class="sidebar-meta">
     <div class="eyebrow">Outil interne</div>
     <div class="doc-title">Chromesh</div>
-    <div class="doc-sub">Extension Edge / Chrome · v0.2.4</div>
+    <div class="doc-sub">Extension Edge / Chrome · v0.3.0</div>
   </div>
   <nav>
     <a href="#intro" data-target="intro">Ce que c'est</a>
@@ -211,11 +211,11 @@ footer .left strong{color:var(--tw);font-weight:500}
     <h1>Ne perds plus un build staging <span class="accent">par inattention</span></h1>
     <p class="lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh directement sur les branches, comptée en jours ouvrés. Installation en cinq minutes, pas de compte à créer.</p>
     <div class="cta">
-      <a class="btn" id="dl" href="https://github.com/yale-dynapps/chromesh/releases/download/0.2.4/chromesh-0.2.4.zip" target="_blank" rel="noopener">Télécharger chromesh-0.2.4.zip <span class="size">· 38 Ko</span></a>
+      <a class="btn" id="dl" href="https://github.com/yale-dynapps/chromesh/releases/download/0.3.0/chromesh-0.3.0.zip" target="_blank" rel="noopener">Télécharger chromesh-0.3.0.zip <span class="size">· 42 Ko</span></a>
       <p class="btn-note">Depuis le dépôt GitHub — plus de lien SharePoint, il ne sera plus mis à jour. Les versions précédentes et les notes de version sont sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a>.</p>
     </div>
     <div class="meta">
-      <div class="item"><div class="lbl">Version</div><div class="val">0.2.4</div></div>
+      <div class="item"><div class="lbl">Version</div><div class="val">0.3.0</div></div>
       <div class="item"><div class="lbl">Navigateurs</div><div class="val">Edge, Chrome</div></div>
       <div class="item"><div class="lbl">Mise à jour</div><div class="val">03/11/2026</div></div>
       <div class="item"><div class="lbl">Auteur</div><div class="val">Yann Leroux</div></div>
@@ -331,8 +331,8 @@ footer .left strong{color:var(--tw);font-weight:500}
   <section id="nouveautes" style="background:var(--off-white)">
     <div class="wrap">
       <div class="eyebrow-s reveal">Nouveautés</div>
-      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.2.4</span></h2>
-      <p class="section-lede reveal">Depuis la première version : la vue d'ensemble des projets, les exclusions au clic, un canal de distribution stable, et des réglages d'affichage séparés.</p>
+      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.3.0</span></h2>
+      <p class="section-lede reveal">Depuis la première version : la vue d'ensemble des projets, les exclusions au clic, un canal de distribution stable, des réglages d'affichage séparés et le filtre du popup.</p>
       <ul class="b-list reveal">
         <li><strong>Le ZIP est sur GitHub.</strong> Chaque version publie son archive sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a> du dépôt. Le lien SharePoint n'est plus alimenté : va chercher la dernière version là-bas.</li>
         <li><strong>La page <code>/project</code> est couverte</strong> (0.2.0, 0.2.1). Bandeau sur chaque carte en kanban, pastille dans la cellule du nom en vue liste. Tu vois quels projets sont en souffrance sans ouvrir aucun d'eux.</li>
@@ -340,6 +340,7 @@ footer .left strong{color:var(--tw);font-weight:500}
         <li><strong>Le badge se recalcule tout de suite</strong> (0.2.2) après une exclusion, sans attendre l'alarme horaire.</li>
         <li><strong>Deux correctifs d'affichage</strong> (0.2.3). Rien n'apparaissait quand Odoo.sh redirige vers <code>/project?debug=1</code>. Et sur la page d'un projet, les boutons <code>⊘</code> et le compteur Staging manquaient tant que tu ne touchais pas à la page.</li>
         <li><strong>Deux réglages d'affichage séparés</strong> (0.2.4). « Bandeau sur la page de la branche » ne commande plus la vue <code>/project</code> : celle-ci a sa propre case, « Bandeau et pastille dans la liste des projets », active par défaut.</li>
+        <li><strong>Le popup se filtre</strong> (0.3.0). Une barre de recherche par projet ou par branche, insensible à la casse et aux accents, et un bouton par niveau avec son compteur. Le filtre repart à zéro à chaque ouverture et ne touche pas aux exclusions. Les paramètres affichent désormais version, navigateur, mode d'installation et ID de l'extension.</li>
       </ul>
       <div class="callout reveal">
         <div class="t">Mise à jour depuis une version antérieure</div>
@@ -359,8 +360,8 @@ footer .left strong{color:var(--tw);font-weight:500}
         <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour en arrière-plan.</strong> Sans onglet, le popup affiche « données figées » plutôt que d'afficher une date périmée en silence.</li>
       </ul>
       <div class="callout reveal">
-        <div class="t">Version 0.2.4 — ce qui n'est pas vérifié</div>
-        <p>Les pastilles, les bandeaux et le compteur ont tourné dans Chrome le 03/11/2026. La 0.2.4 n'a été rechargée dans aucun navigateur. N'ont pas été éprouvés : le clic dans le menu <code>⊘</code>, la vue liste de <code>/project</code>, Edge, les notifications système, et le repli du worker vers un onglet quand la collecte directe est bloquée. Dis-moi si tu tombes dessus.</p>
+        <div class="t">Version 0.3.0 — ce qui n'est pas vérifié</div>
+        <p>Les pastilles, les bandeaux et le compteur ont tourné dans Chrome le 03/11/2026. Le filtre du popup a été éprouvé sur une page servie en local avec des données fictives, jamais dans le popup réel : Chrome refuse les URL <code>chrome-extension://</code> aux outils d'automatisation. N'ont pas été éprouvés : le clic dans le menu <code>⊘</code>, la vue liste de <code>/project</code>, Edge, les notifications système, et le repli du worker vers un onglet quand la collecte directe est bloquée. Dis-moi si tu tombes dessus.</p>
       </div>
     </div>
   </section>
@@ -383,7 +384,7 @@ footer .left strong{color:var(--tw);font-weight:500}
 
   <div class="footer-grad"></div>
   <footer>
-    <div class="left"><strong>Dynapps</strong> · Chromesh v0.2.4 · Usage interne</div>
+    <div class="left"><strong>Dynapps</strong> · Chromesh v0.3.0 · Usage interne</div>
     <div>Yann Leroux · 3 novembre 2026</div>
   </footer>
 
