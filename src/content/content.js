@@ -332,7 +332,7 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
     function renderProjectCard(card, projectName, layout = "kanban") {
         const { state: worst, branch, counts } = worstForProject(projectName);
         const shown =
-            state.settings.showBanner &&
+            state.settings.showProjectBanner &&
             (worst.level === LEVELS.WARNING ||
                 worst.level === LEVELS.CRITICAL ||
                 worst.level === LEVELS.EXPIRED);

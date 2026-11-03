@@ -6,6 +6,25 @@ en haut.
 Statut de test : aucune version n'a encore été validée dans un navigateur
 au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 
+## 0.2.4 — 03/11/2026
+
+### Ajouté
+- Réglage « Bandeau et pastille dans la liste des projets »
+  (`showProjectBanner`, activé par défaut). La vue `/project` ne dépend plus de
+  l'option du bandeau de branche : les deux affichages se règlent séparément.
+
+### Modifié
+- « Bandeau sur la page de la branche » (`showBanner`) ne pilote plus que la
+  page d'une branche.
+
+### Vérifié
+- Syntaxe de tous les fichiers de `src/` par `node --check`.
+- Diagnostic à l'origine du changement, dans Chrome le 03/11/2026 sur
+  `/project` : content script injecté, 44 cartes repérées, 118 entrées en
+  cache, noms concordants, `showBanner` à `false` — aucun bandeau posé.
+- Non testé : l'extension n'a pas été rechargée depuis ce changement, ni dans
+  Chrome ni dans Edge. La nouvelle case à cocher n'a pas été manipulée.
+
 ## 0.2.3 — 03/11/2026
 
 ### Corrigé

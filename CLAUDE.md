@@ -49,6 +49,11 @@ dans `README.md`. L'état des sondes API et les décisions prises sont dans
 - Chaque changement de version ajoute une entrée en tête de `CHANGELOG.md` :
   date, sections Ajouté / Modifié / Corrigé, et ce qui a été vérifié.
 - Ne pas committer `dist/`.
+- Tout bump de version impose de mettre à jour la page vitrine
+  `docs/chromesh-extension.html` (version, lien de téléchargement, date, section
+  Nouveautés) et de republier l'artefact qui la sert :
+  https://claude.ai/code/artifact/56245592-8891-452e-8aa5-bf6666ee706d
+  Republier avec l'outil Artifact en passant cette URL, pour garder le même lien.
 
 ## Edge et Chrome
 
