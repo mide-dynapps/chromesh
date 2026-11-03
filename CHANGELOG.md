@@ -69,9 +69,9 @@ au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 ### Vérifié
 - Dans Chrome, le 03/11/2026, motif élargi chargé : 9 bandeaux posés sur
   `/project?debug=1` (8 orange, 1 rouge).
-- Même jour, page `/project/moduleis` : 0 bouton `⊘` et pas de compteur au
+- Même jour, page `/project/demo-v19` : 0 bouton `⊘` et pas de compteur au
   chargement ; après une mutation DOM forcée, 2 boutons `⊘` et compteur à 1.
-- Report du rendu chargé dans Chrome : sur `/project/moduleis`, sans aucune
+- Report du rendu chargé dans Chrome : sur `/project/demo-v19`, sans aucune
   intervention, 2 boutons `⊘` (visibles au survol) et compteur Staging à 1.
 - Non testé : le clic dans le menu `⊘`, la vue liste de `/project`, Edge.
 
