@@ -43,6 +43,11 @@ dans `README.md`. L'état des sondes API et les décisions prises sont dans
   modification par script.
 - La version est le champ `version` de `manifest.json`. Le changer à chaque
   livraison : `package.ps1` en tire le nom de `dist/chromesh-<version>.zip`.
+- Avant de choisir un numéro : `git fetch origin --tags`, puis prendre la
+  version qui suit celle de `origin/main` et le dernier tag. Les versions
+  publiées portent un tag au nom nu (`0.2.1`, sans `v`).
+- Chaque changement de version ajoute une entrée en tête de `CHANGELOG.md` :
+  date, sections Ajouté / Modifié / Corrigé, et ce qui a été vérifié.
 - Ne pas committer `dist/`.
 
 ## Edge et Chrome

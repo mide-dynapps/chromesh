@@ -15,8 +15,8 @@ $archive = Join-Path $root "dist\chromesh-$version.zip"
 if (Test-Path (Join-Path $root 'dist')) { Remove-Item (Join-Path $root 'dist') -Recurse -Force }
 New-Item -ItemType Directory -Path $staging -Force | Out-Null
 
-# Seul ce qui est necessaire a l'execution, plus le README pour le destinataire.
-foreach ($item in @('manifest.json', 'README.md', 'src', 'icons')) {
+# Seul ce qui est necessaire a l'execution, plus le README et le CHANGELOG pour le destinataire.
+foreach ($item in @('manifest.json', 'README.md', 'CHANGELOG.md', 'src', 'icons')) {
     Copy-Item (Join-Path $root $item) -Destination $staging -Recurse
 }
 

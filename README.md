@@ -112,7 +112,7 @@ extension non publiée, pas une erreur.
 .\package.ps1
 ```
 
-Écrit `dist/chromesh-<version>.zip` à partir de `manifest.json`, `README.md`,
+Écrit `dist/chromesh-<version>.zip` à partir de `manifest.json`, `README.md`, `CHANGELOG.md`,
 `src/` et `icons/`. La version vient du champ `version` du manifeste.
 
 ## Architecture
