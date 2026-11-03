@@ -16,6 +16,9 @@ au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 - Le filtre repart à zéro à chaque ouverture du popup. `Échap` ou `✕` l'efface.
   Il ne touche pas aux exclusions (`ignored`).
 - Pied du popup : nombre de branches masquées par le filtre.
+- Paramètres : ligne en bas de page avec la version, le navigateur, le mode
+  d'installation (« non empaquetée » en mode développeur) et l'ID de
+  l'extension. `chrome.management.getSelf()` ne demande aucune permission.
 
 ### Vérifié
 - `node --check` sur tous les fichiers de `src/`.
@@ -27,7 +30,9 @@ au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
   au texte, message « Aucune branche ne correspond », `Échap`, `✕`,
   `⊘ branche` avec filtre actif (filtre conservé), focus gardé sur un bouton
   de niveau après clic. Aucune erreur console.
-- Non testé : popup réel de l'extension (Chrome refuse les URL
+- Même méthode pour `options.html` (`runtime` et `management` simulés) :
+  pied affiché « Chromesh 0.3.0 · Chrome 156 · non empaquetée · ID … ».
+- Non testé : popup et paramètres réels de l'extension (Chrome refuse les URL
   `chrome-extension://` aux outils d'automatisation), dont `Échap` qui ne
   doit pas fermer le popup quand un filtre est actif ; Edge.
 
