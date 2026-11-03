@@ -6,6 +6,21 @@ en haut.
 Statut de test : aucune version n'a encore été validée dans un navigateur
 au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 
+## 0.2.3 — 03/11/2026
+
+### Corrigé
+- Vue `/project` : rien ne s'affichait quand odoo.sh redirige vers
+  `/project?debug=1`. Le motif `https://www.odoo.sh/project` du manifeste ne
+  couvre pas la chaîne de requête, donc le content script n'était pas injecté.
+  Les deux motifs sont remplacés par `https://www.odoo.sh/project*`.
+
+### Vérifié
+- Dans Chrome, sur odoo.sh, le 03/11/2026 : la page charge directement
+  `/project?debug=1` (redirection serveur), 48 cartes kanban repérées par
+  `listProjectCards`, aucun élément `csh-` injecté. Sur
+  `/project/scopea?debug=1`, les pastilles sont bien posées.
+- Le correctif lui-même n'a pas encore été rechargé dans un navigateur.
+
 ## 0.2.2 — 03/11/2026
 
 ### Ajouté
