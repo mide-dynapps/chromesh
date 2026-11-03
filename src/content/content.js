@@ -19,6 +19,7 @@
         cache: {},
         collecting: new Set(),
         rendering: false,
+        renderPending: false,
     };
 
     const log = (...args) => console.debug("[chromesh]", ...args);
@@ -431,9 +432,15 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
 
     async function render() {
         if (state.rendering) {
+            // Un rendu en cours peut attendre une collecte de plusieurs
+            // secondes : la demande est reportée, pas abandonnée. Sinon la
+            // liste des branches rendue par Owl pendant la collecte ne reçoit
+            // jamais ses boutons ⊘ ni le compteur Staging.
+            state.renderPending = true;
             return;
         }
         state.rendering = true;
+        state.renderPending = false;
         try {
             if (parse.isProjectIndex(location.pathname)) {
                 renderProjectIndex();
@@ -487,6 +494,9 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
             }
         } finally {
             state.rendering = false;
+            if (state.renderPending) {
+                scheduleRender();
+            }
         }
     }
 
