@@ -158,6 +158,13 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     }
 });
 
+// Une exclusion (page, popup ou options) change le décompte : badge recalculé.
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.ignored) {
+        evaluateAll().then(({ rows }) => updateBadge(rows));
+    }
+});
+
 chrome.runtime.onMessage.addListener((message) => {
     if (message?.type === "chromesh:refreshed") {
         // Le content script vient d'écrire : on recalcule sans re-collecter.

@@ -1,0 +1,73 @@
+# Historique des versions
+
+Les versions suivent le champ `version` de `manifest.json`. La plus récente est
+en haut.
+
+Statut de test : aucune version n'a encore été validée dans un navigateur
+au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
+
+## 0.2.2 — 03/11/2026
+
+### Ajouté
+- Panneau des branches sur odoo.sh : un bouton `⊘` apparaît au survol de
+  chaque branche staging. Son menu propose « Exclure la branche » ou « Exclure
+  le projet ». Le projet est enregistré sous la forme `projet::*`.
+- Popup : boutons `⊘ branche` et `⊘ projet` au survol d'une ligne. Le bas du
+  popup indique le nombre d'exclusions.
+
+### Modifié
+- Le badge de la barre d'outils se recalcule dès que la liste d'exclusion
+  change, sans attendre l'alarme horaire.
+- Une branche exclue n'est plus repeinte à la fin d'une collecte.
+- Le ZIP produit par `package.ps1` contient aussi `CHANGELOG.md`.
+
+### Vérifié
+- Syntaxe des scripts (`node --check`) et règles d'exclusion, sous Node.
+- Non testé dans Edge ni dans Chrome.
+
+## 0.2.1 — 03/11/2026
+
+### Ajouté
+- Vue `/project` en mode liste : pastille dans la cellule du nom du projet et
+  liseré coloré sur la ligne, au niveau d'urgence de sa pire branche staging.
+
+### Corrigé
+- Le bandeau de la 0.2.0 ne visait que le rendu kanban. En liste, il était
+  inséré dans un `tr` et rejeté hors du tableau.
+- `/project/create` n'est plus compté comme un projet nommé `create`.
+
+### Vérifié
+- Non testé dans un navigateur.
+
+## 0.2.0 — 03/11/2026
+
+### Ajouté
+- Un clic, ou Entrée / Espace, sur une pastille exclut la branche
+  (`projet::branche`).
+- Vue `/project` : bandeau en tête de chaque projet, au niveau d'urgence de sa
+  pire branche staging. Le manifeste couvre désormais aussi l'URL
+  `https://www.odoo.sh/project`.
+
+### Vérifié
+- Non testé dans un navigateur.
+
+## 0.1.0 — 21/10/2026
+
+Première version.
+
+### Ajouté
+- Pastille `J-n` / `AUJOURD'HUI` / `EXPIRÉ` sur chaque branche staging,
+  compteur sur l'en-tête Staging, bandeau avec bouton `Rebuild` sur la page de
+  la branche.
+- Popup multi-projets trié par urgence, badge sur l'icône, notifications
+  système.
+- Échéance comptée en jours ouvrés, avec les jours fériés FR, BE ou LU au choix.
+- Données lues dans l'API interne `/app/` d'Odoo.sh (`expiration_date`), pas
+  dans le DOM.
+- Exclusions dans les options : `projet::branche`, `projet::*` ou `projet`. Un
+  projet exclu n'est plus interrogé.
+
+### Vérifié
+- Le 19/10/2026 dans Edge, sur un projet réel : chargement sans erreur,
+  pastilles, bandeau `Rebuild`, popup rempli.
+- Notifications et collecte directe par le service worker : non éprouvées.
