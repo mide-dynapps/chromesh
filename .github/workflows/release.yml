@@ -1,0 +1,92 @@
+# Publie une release dès que la version de manifest.json change sur main.
+#
+# Le job tourne sous Windows pour appeler package.ps1, qui reste la seule
+# définition du contenu du ZIP : une version Bash du même empaquetage
+# divergerait au premier fichier ajouté.
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths: ['manifest.json']
+  # Rattrape un bump dont le workflow n'a pas tourné. Sans effet si le tag
+  # existe déjà.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lire la version et vérifier que le tag est libre
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content manifest.json -Raw -Encoding utf8 | ConvertFrom-Json).version
+          if (-not $version) { throw "manifest.json ne porte pas de version." }
+          "version=$version" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+          # Un tag déjà publié veut dire que la version n'a pas bougé : le push
+          # touchait manifest.json pour autre chose. On sort sans rien casser.
+          $existing = git tag --list $version
+          if ($existing) {
+            Write-Output "::notice::Le tag $version existe déjà, aucune release créée."
+            "skip=true" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          } else {
+            "skip=false" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          }
+
+      - name: Construire le ZIP
+        if: steps.version.outputs.skip == 'false'
+        shell: pwsh
+        run: ./package.ps1
+
+      - name: Extraire les notes du CHANGELOG
+        if: steps.version.outputs.skip == 'false'
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $notes = $null
+          if (Test-Path CHANGELOG.md) {
+            # La section court de « ## <version> … » jusqu'au prochain « ## ».
+            $lines = Get-Content CHANGELOG.md -Encoding utf8
+            $start = ($lines | Select-String -Pattern "^##\s+$([regex]::Escape($version))\b").LineNumber
+            # $start est 1-based : $lines[$start] est la ligne suivant le titre.
+            # Un range inverse ses bornes, d'où la garde sur une section vide
+            # en fin de fichier.
+            if ($start -and $start -lt $lines.Count) {
+              $rest = @($lines[$start..($lines.Count - 1)])
+              $next = ($rest | Select-String -Pattern '^##\s').LineNumber | Select-Object -First 1
+              $body = if ($next) { $rest[0..($next - 2)] } else { $rest }
+              $notes = ($body -join "`n").Trim()
+            }
+          }
+          if (-not $notes) {
+            Write-Output "::warning::Aucune section $version dans CHANGELOG.md, notes de repli utilisées."
+            $notes = "Version $version. Voir CHANGELOG.md."
+          }
+
+          $install = @'
+
+## Installation
+
+Le ZIP ne s'installe pas directement : Edge et Chrome refusent une archive. Décompressez-la, puis chargez le **dossier** obtenu via « Charger l'extension non empaquetée », mode développeur activé.
+'@
+          ($notes + "`n" + $install) | Out-File notes.md -Encoding utf8NoBOM
+
+      - name: Publier la release
+        if: steps.version.outputs.skip == 'false'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          gh release create $version "dist/chromesh-$version.zip" `
+            --title $version --notes-file notes.md
