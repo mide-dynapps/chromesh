@@ -110,3 +110,30 @@ footer {
     color: var(--muted);
     font-size: 11px;
 }
+
+.actions {
+    display: none;
+    flex-shrink: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+li:hover .actions {
+    display: flex;
+}
+
+.actions button {
+    padding: 1px 6px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.actions button:hover {
+    color: var(--fg);
+    border-color: var(--muted);
+}

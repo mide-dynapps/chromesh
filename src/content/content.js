@@ -43,8 +43,11 @@
                 slug,
                 onEntry: async (entry) => {
                     const stored = await store.putBranch(entry);
-                    state.cache[parse.cacheKey(entry.project, entry.branch)] = stored;
-                    paintBranch(entry.branch, stateFor(stored));
+                    const key = parse.cacheKey(entry.project, entry.branch);
+                    state.cache[key] = stored;
+                    if (!store.isIgnored(key, state.settings.ignored)) {
+                        paintBranch(entry.branch, stateFor(stored));
+                    }
                 },
             });
             await store.setStatus({ lastError: null });
@@ -161,6 +164,78 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
         } catch (error) {
             log("exclusion impossible", branchName, error);
         }
+    }
+
+    /* ------------------------------------------------------------- exclusion */
+
+    function closeMenu() {
+        document.querySelectorAll(`.${PREFIX}-menu`).forEach((menu) => menu.remove());
+    }
+
+    /** Menu du bouton ⊘ : exclure la branche, ou tout le projet ('projet::*'). */
+    function openExcludeMenu(button, project, branchName) {
+        closeMenu();
+        const menu = document.createElement("div");
+        menu.className = `${PREFIX}-menu`;
+
+        const entries = [
+            { label: `Exclure la branche ${branchName}`, rule: parse.cacheKey(project, branchName) },
+            { label: `Exclure le projet ${project}`, rule: parse.cacheKey(project, "*") },
+        ];
+        for (const entry of entries) {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = `${PREFIX}-menu-item`;
+            item.textContent = entry.label;
+            item.addEventListener("click", async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                closeMenu();
+                try {
+                    // storage.onChanged (sync) relance le rendu ; le worker
+                    // recalcule le badge de la barre d'outils.
+                    await store.addIgnored(entry.rule);
+                } catch (error) {
+                    log("exclusion impossible", entry.rule, error);
+                }
+            });
+            menu.append(item);
+        }
+
+        const rect = button.getBoundingClientRect();
+        menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+        menu.style.left = `${rect.left + window.scrollX}px`;
+        document.body.append(menu);
+    }
+
+    function renderExcludeButton(li, project, branchName, show) {
+        const host = li.querySelector(".o_paas_branch");
+        if (!host) {
+            return;
+        }
+        let button = host.querySelector(`.${PREFIX}-exclude`);
+        if (!show) {
+            if (button) {
+                button.remove();
+            }
+            return;
+        }
+        if (button) {
+            return;
+        }
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = `${PREFIX}-exclude`;
+        button.textContent = "⊘";
+        button.title = "Exclure cette branche ou tout le projet du suivi";
+        button.addEventListener("click", (event) => {
+            // Le bouton est posé dans le lien de la branche : sans cela, le
+            // clic navigue au lieu d'ouvrir le menu.
+            event.preventDefault();
+            event.stopPropagation();
+            openExcludeMenu(button, project, branchName);
+        });
+        host.insertBefore(button, host.querySelector(".o_branch_icon"));
     }
 
     function renderStageSummary(counts) {
@@ -389,6 +464,7 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
                 if (state.settings.showBadges) {
                     renderBadge(item.element, branchState);
                 }
+                renderExcludeButton(item.element, project, item.name, !ignored);
                 if (!ignored && isStale(entry)) {
                     needsCollect = true;
                 }
@@ -436,6 +512,17 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
                 scheduleRender();
             }
         }).observe(target, { childList: true, subtree: true });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest?.(`.${PREFIX}-menu`)) {
+                closeMenu();
+            }
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                closeMenu();
+            }
+        });
 
         chrome.storage.onChanged.addListener(async (changes, area) => {
             if (area === "sync") {

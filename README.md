@@ -58,12 +58,12 @@ Coût : une requête `/app/projects`, puis une `branches` par projet et une
 
 | Où | Quoi |
 |---|---|
-| Liste des branches (panneau gauche) | Pastille `J-3` / `AUJOURD'HUI` / `EXPIRÉ` sur chaque branche staging, verte, orange, rouge ou grise |
+| Liste des branches (panneau gauche) | Pastille `J-3` / `AUJOURD'HUI` / `EXPIRÉ` sur chaque branche staging, verte, orange, rouge ou grise. Bouton `⊘` au survol : exclure la branche ou tout le projet (`projet::*`) |
 | En-tête du bloc Staging | Compteur des branches critiques et expirées |
 | Page de la branche | Bandeau avec l'échéance réelle et un bouton `Rebuild` qui déclenche celui d'Odoo.sh |
 | Phrase d'origine | Surlignée dans l'historique |
 | Icône de la barre d'outils | Badge rouge = nombre de branches critiques ou expirées |
-| Popup | Tableau de bord multi-projets, trié par urgence |
+| Popup | Tableau de bord multi-projets, trié par urgence. Boutons `⊘ branche` / `⊘ projet` au survol d'une ligne |
 | Notification système | Une par branche et par jour, pas avant l'heure configurée |
 
 ## Modèle de calcul
