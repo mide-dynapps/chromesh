@@ -118,27 +118,57 @@
     }
 
     /**
-     * Project blocks of the index page. The markup is not known upfront, so we
-     * start from the links to /project/<name> and climb to the nearest block
-     * that looks like a card. Returns [{name, element}], one entry per project,
-     * keeping the outermost block found for each.
+     * Project blocks of the index page. Relevé le 03/11 sur /project, qui a
+     * deux rendus sans changement d'URL :
+     *
+     *   kanban : div.row.o_project_cards > div.o_project_card_container
+     *              > div.card.o_sh_display_kanban
+     *            titre = a.x-odoo-sh-project-name[href="/project/<name>"]
+     *   liste  : div.o_sh_display_list > table > tbody
+     *              > tr.o_project_card_container
+     *            titre = th.x-odoo-sh-project-name (texte nu, sans lien)
+     *            seul lien projet = le bouton « Open », dernière cellule
+     *
+     * Le nom vient toujours du href, jamais du texte : le libellé affiché est
+     * `name` (« DEMO_V19 ») alors que la clé de cache est `project_name`
+     * (« demo-v19 »). Returns [{name, element, layout}], layout « kanban » ou
+     * « list ».
      */
+    const PROJECT_LINK_SELECTOR = "a.x-odoo-sh-project-name";
     const CARD_SELECTOR =
-        '.o_project_card, .o_paas_project, .card, [class*="project_card"], li, .col, .o_project';
+        '.o_sh_display_kanban, .o_project_card_container, .o_project_card, .o_paas_project, .card, [class*="project_card"]';
+    // /project/<segment> qui ne désignent pas un projet.
+    const RESERVED_NAMES = new Set(["create", "new"]);
 
     function listProjectCards(scope) {
         const cards = new Map();
-        scope.querySelectorAll('a[href^="/project/"]').forEach((anchor) => {
-            const name = /^\/project\/([^/?#]+)/.exec(anchor.getAttribute("href") || "")?.[1];
-            if (!name || cards.has(name)) {
+        // Le lien de titre en kanban ; en liste il n'existe pas, tout lien
+        // /project/<name> fait l'affaire puisqu'il n'y en a qu'un par ligne.
+        let anchors = [...scope.querySelectorAll(PROJECT_LINK_SELECTOR)];
+        if (!anchors.length) {
+            anchors = [...scope.querySelectorAll('a[href^="/project/"]')];
+        }
+        anchors.forEach((anchor) => {
+            const raw = /^\/project\/([^/?#]+)/.exec(anchor.getAttribute("href") || "")?.[1];
+            if (!raw) {
                 return;
             }
-            const card = anchor.closest(CARD_SELECTOR) || anchor.parentElement;
+            const name = decodeURIComponent(raw);
+            if (RESERVED_NAMES.has(name) || cards.has(name)) {
+                return;
+            }
+            const card = anchor.closest(CARD_SELECTOR);
             if (card) {
-                cards.set(decodeURIComponent(name), { name: decodeURIComponent(name), element: card });
+                const layout = card.tagName === "TR" ? "list" : "kanban";
+                cards.set(name, { name, element: card, layout });
             }
         });
         return [...cards.values()];
+    }
+
+    /** Cellule ou bloc qui porte le nom, point d'accroche du marqueur. */
+    function projectTitleCell(card) {
+        return card.querySelector(".x-odoo-sh-project-name") || card.firstElementChild;
     }
 
     /** {project, branch} from /project/<project>/branches/<branch>/... */
@@ -157,6 +187,7 @@
         listBranches,
         isProjectIndex,
         listProjectCards,
+        projectTitleCell,
         locationInfo,
         cacheKey,
     };

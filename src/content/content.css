@@ -152,3 +152,51 @@
     border-radius: 4px;
     font-size: 12px;
 }
+
+/* Vue /project en mode liste : un <tr> ne peut pas porter de bandeau, le
+   marqueur va dans la cellule du nom et le niveau colore la ligne. Les
+   couleurs de .csh-badge visent le panneau sombre des branches ; ici le fond
+   est blanc, d'ou un jeu propre. */
+.csh-row-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.csh-row-badge.csh-warning {
+    background: #fff4e0;
+    color: #8a5300;
+}
+
+.csh-row-badge.csh-critical {
+    background: #d9480f;
+    color: #fff;
+}
+
+.csh-row-badge.csh-expired {
+    background: #6c757d;
+    color: #fff;
+    text-decoration: line-through;
+}
+
+/* border-left sur un <tr> ne rend pas avec border-collapse : le liseré passe
+   par la premiere cellule. Couleur explicite, pas currentColor, qui
+   repeindrait le nom du projet. */
+.csh-row.csh-warning > :first-child {
+    box-shadow: inset 3px 0 0 0 #d98e00;
+}
+
+.csh-row.csh-critical > :first-child {
+    box-shadow: inset 3px 0 0 0 #d9480f;
+}
+
+.csh-row.csh-expired > :first-child {
+    box-shadow: inset 3px 0 0 0 #6c757d;
+}

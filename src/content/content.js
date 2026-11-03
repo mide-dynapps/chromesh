@@ -214,15 +214,57 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
         return { state: worst || { level: LEVELS.UNKNOWN }, branch: worstBranch, counts };
     }
 
+    /** Libelle commun aux deux rendus de la vue /project. */
+    function projectSummaryText(branch, counts, worst) {
+        const others = counts.expired + counts.critical + counts.warning - 1;
+        return others > 0
+            ? `${branch} + ${others} autre(s) branche(s) a surveiller`
+            : `${branch} : ${urgency.describe(worst)}`;
+    }
+
+    /**
+     * Marqueur sur une ligne de la vue liste. Un <tr> ne peut pas recevoir de
+     * <div> : le marqueur va dans la cellule du nom, et le niveau colore la
+     * ligne entiere.
+     */
+    function renderProjectRow(row, projectName, worst, branch, counts, shown) {
+        const cell = parse.projectTitleCell(row);
+        const existing = cell && cell.querySelector(`.${PREFIX}-row-badge`);
+        row.classList.remove(
+            `${PREFIX}-row`,
+            levelClass(LEVELS.WARNING),
+            levelClass(LEVELS.CRITICAL),
+            levelClass(LEVELS.EXPIRED)
+        );
+        if (!shown || !cell) {
+            if (existing) {
+                existing.remove();
+            }
+            return;
+        }
+        row.classList.add(`${PREFIX}-row`, levelClass(worst.level));
+        const badge = existing || document.createElement("span");
+        badge.className = `${PREFIX}-row-badge ${levelClass(worst.level)}`;
+        badge.textContent = urgency.badgeLabel(worst);
+        badge.title = projectSummaryText(branch, counts, worst);
+        if (!existing) {
+            cell.append(badge);
+        }
+    }
+
     /** Bandeau en tete du bloc projet, sur la vue /project. */
-    function renderProjectCard(card, projectName) {
+    function renderProjectCard(card, projectName, layout = "kanban") {
         const { state: worst, branch, counts } = worstForProject(projectName);
-        let banner = card.querySelector(`.${PREFIX}-project-banner`);
         const shown =
             state.settings.showBanner &&
             (worst.level === LEVELS.WARNING ||
                 worst.level === LEVELS.CRITICAL ||
                 worst.level === LEVELS.EXPIRED);
+        if (layout === "list") {
+            renderProjectRow(card, projectName, worst, branch, counts, shown);
+            return;
+        }
+        let banner = card.querySelector(`.${PREFIX}-project-banner`);
         if (!shown) {
             if (banner) {
                 banner.remove();
@@ -243,11 +285,7 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
 
         const text = document.createElement("span");
         text.className = `${PREFIX}-banner-text`;
-        const others = counts.expired + counts.critical + counts.warning - 1;
-        text.textContent =
-            others > 0
-                ? `${branch} + ${others} autre(s) branche(s) a surveiller`
-                : `${branch} : ${urgency.describe(worst)}`;
+        text.textContent = projectSummaryText(branch, counts, worst);
 
         banner.append(chip, text);
         banner.title = `${branch} — ${urgency.describe(worst)}`;
@@ -258,7 +296,7 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
             if (store.isProjectIgnored(card.name, state.settings.ignored)) {
                 continue;
             }
-            renderProjectCard(card.element, card.name);
+            renderProjectCard(card.element, card.name, card.layout);
         }
     }
 
