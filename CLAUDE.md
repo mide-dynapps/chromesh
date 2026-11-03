@@ -5,6 +5,44 @@ builds staging Odoo.sh, comptée en jours ouvrés. Le fonctionnement est décrit
 dans `README.md`. L'état des sondes API et les décisions prises sont dans
 `CONTEXT.md` : les lire avant de modifier la collecte.
 
+## Dépôt public : aucune donnée client ni interne
+
+Le dépôt `yale-dynapps/chromesh` est public, comme les ZIP des releases, qui
+contiennent `README.md` et `CHANGELOG.md`. Tout ce qui est poussé est publié,
+historique compris : le supprimer ensuite ne le retire pas.
+
+Ne jamais écrire, dans le code, la doc, les commits, les PR ni les releases :
+
+- un nom réel de client, ou de projet, branche, dépôt ou base Odoo.sh ;
+- un payload de l'API `/app/` copié tel quel (`id`, `owner`,
+  `technical_name`, `hosting_user_id`, `access_token`, cookies) ;
+- un lien interne (SharePoint, Teams, Odoo Dynapps, portail), une adresse
+  e-mail, un numéro de téléphone ;
+- la volumétrie du portefeuille (nombre de projets, de branches, d'entrées en
+  cache) ;
+- un secret : token, clé, mot de passe.
+
+Seule exception : l'URL de l'artefact de la page vitrine, plus bas.
+
+Pour illustrer, n'utiliser que le jeu d'exemples existant : owner `Acme`,
+`project_name` `demo-v19`, `technical_name` `acme-demo-v19-123456`, libellé
+`DEMO_V19`, branche `Develop`. Dans les sections « Vérifié » du
+`CHANGELOG.md`, écrire `demo-v19` ou « sur un projet réel », jamais le vrai
+nom. Captures d'écran et GIF : masquer les noms de projets et de branches.
+
+Avant chaque commit, relire `git diff --cached` et lancer :
+
+```sh
+git diff --cached -U0 | grep -n -i -E 'sharepoint|teams\.microsoft|@[a-z0-9-]+\.(fr|com|be|lu)\b|/project/[a-z0-9_-]+' | grep -v demo-v19
+```
+
+Toute ligne remontée doit être justifiée ou anonymisée.
+
+Si une donnée a déjà été poussée : la signaler à l'utilisateur, l'anonymiser
+dans un nouveau commit, et lister ce qui reste exposé (historique, ZIP
+publiés). Révoquer le lien ou le secret concerné. Ne pas réécrire l'historique
+(`git filter-repo`, force-push) sans son accord explicite.
+
 ## Architecture à respecter
 
 - Pas d'étape de build. Ce sont des scripts classiques qui partagent le
