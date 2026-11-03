@@ -26,6 +26,8 @@
         .hint { margin: 2px 0 10px; color: #6c757d; font-size: 12px; }
         #saved { color: #2f9e44; font-size: 12px; }
         ul { padding-left: 18px; }
+        .build { margin-top: 32px; padding-top: 10px; border-top: 1px solid #e4e7ea; color: #6c757d; font-size: 12px; }
+        @media (prefers-color-scheme: dark) { .build { border-color: #2f353c; color: #9aa3ab; } }
         button { padding: 5px 12px; border-radius: 4px; border: 1px solid #ccd2d8; background: transparent; color: inherit; cursor: pointer; }
     </style>
 </head>
@@ -114,6 +116,8 @@
 
     <button type="button" id="save">Enregistrer</button>
     <span id="saved" hidden>Enregistré.</span>
+
+    <footer id="build" class="build"></footer>
 
     <script src="../common/workdays.js"></script>
     <script src="../common/parse.js"></script>

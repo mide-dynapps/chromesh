@@ -137,3 +137,81 @@ li:hover .actions {
     color: var(--fg);
     border-color: var(--muted);
 }
+
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.filters[hidden] {
+    display: none;
+}
+
+.search {
+    position: relative;
+    display: flex;
+}
+
+.search input {
+    flex-grow: 1;
+    box-sizing: border-box;
+    padding: 4px 24px 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+}
+
+.search input:focus {
+    outline: none;
+    border-color: var(--muted);
+}
+
+/* Le bouton ✕ du navigateur ferait doublon avec #clear. */
+.search input::-webkit-search-cancel-button {
+    display: none;
+}
+
+.search button {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.search button[hidden] {
+    display: none;
+}
+
+.levels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.level {
+    padding: 1px 8px;
+    border: 0;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.level.ok { background: rgba(40, 167, 69, 0.18); color: #2f9e44; }
+.level.warning { background: rgba(245, 159, 0, 0.2); color: #b26a00; }
+.level.critical { background: #d9480f; color: #fff; }
+.level.expired { background: #6c757d; color: #fff; }
+
+.level.off {
+    opacity: 0.35;
+    text-decoration: line-through;
+}
