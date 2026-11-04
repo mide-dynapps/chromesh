@@ -23,8 +23,10 @@
             patch[id] = document.getElementById(id).checked;
         });
         NUMBERS.forEach((id) => {
-            const value = Number(document.getElementById(id).value);
-            patch[id] = Number.isFinite(value) ? value : store.DEFAULTS[id];
+            const raw = document.getElementById(id).value.trim();
+            // Un champ vide vaut 0 pour Number() : sans ce test, il effacerait
+            // le reglage au lieu de revenir au defaut.
+            patch[id] = raw === "" ? store.DEFAULTS[id] : Number(raw);
         });
         patch.ignored = document
             .getElementById("ignored")
@@ -32,12 +34,24 @@
             .map((line) => line.trim())
             .filter(Boolean);
 
-        await store.setSettings(patch);
         const saved = document.getElementById("saved");
-        saved.hidden = false;
-        setTimeout(() => {
-            saved.hidden = true;
-        }, 1800);
+        const failed = document.getElementById("save-error");
+        failed.hidden = true;
+        try {
+            // store.setSettings borne les nombres et force warningDays >=
+            // criticalDays : les champs sont relus pour montrer le resultat.
+            const written = await store.setSettings(patch);
+            NUMBERS.forEach((id) => {
+                document.getElementById(id).value = written[id];
+            });
+            saved.hidden = false;
+            setTimeout(() => {
+                saved.hidden = true;
+            }, 1800);
+        } catch (error) {
+            failed.textContent = String(error.message || error);
+            failed.hidden = false;
+        }
     });
 
     /** Version, navigateur et mode d'installation, en bas de page. */

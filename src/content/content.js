@@ -50,7 +50,7 @@
         }
         state.collecting.add(projectName);
         try {
-            await api.collectProject(projectName, {
+            const { keys } = await api.collectProject(projectName, {
                 slug,
                 onEntry: async (entry) => {
                     const stored = await store.putBranch(entry);
@@ -61,6 +61,10 @@
                     }
                 },
             });
+            // Une branche supprimee sur Odoo.sh resterait sinon en cache,
+            // basculerait en « expire » et compterait dans le badge.
+            const removed = await store.pruneProject(projectName, keys);
+            removed.forEach((key) => delete state.cache[key]);
             await store.setStatus({ lastError: null });
         } catch (error) {
             log("collecte échouée", projectName, error);
@@ -76,11 +80,15 @@
         if (!state.settings.scanAllProjects) {
             return;
         }
-        const status = await store.getStatus();
-        if (!force && Date.now() - (status.lastScanAt || 0) < state.settings.refreshHours * 3600000) {
+        // Le jeton est partage avec les autres onglets et le service worker :
+        // sans lui, deux onglets ouverts balaient le portefeuille en double.
+        const { claimed, previous } = await store.claimScan(
+            state.settings.refreshHours * 3600000,
+            { force }
+        );
+        if (!claimed) {
             return;
         }
-        await store.setStatus({ lastScanAt: Date.now() });
         try {
             const projects = await api.listProjects();
             log(`balayage de ${projects.length} projet(s)`);
@@ -93,6 +101,9 @@
             }
         } catch (error) {
             log("liste des projets illisible", error);
+            // Le jeton est rendu : sinon une session expiree bloquerait toute
+            // reprise jusqu'a la prochaine echeance, soit six heures par defaut.
+            await store.releaseScan(previous);
             await store.setStatus({ lastError: String(error.message || error), lastErrorAt: Date.now() });
         }
     }
@@ -354,7 +365,19 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
         return counts;
     }
 
-    /** Barre de filtre posee au-dessus de la liste des projets. */
+    /** Retire la barre de filtre et rend visibles toutes les tuiles. */
+    function removeProjectFilter(cards) {
+        document.querySelectorAll(`.${PREFIX}-filter`).forEach((bar) => bar.remove());
+        for (const card of cards) {
+            parse.projectHideTarget(card).classList.remove(`${PREFIX}-hidden`);
+        }
+    }
+
+    /**
+     * Barre de filtre posee au-dessus de la liste des projets. Elle suit le
+     * meme reglage que la coloration : decocher « Colorer les projets » retire
+     * tout ce que l'extension ajoute a cette vue.
+     */
     function renderProjectFilterBar(cards, levels) {
         const anchor = parse.projectListAnchor(cards);
         if (!anchor || !anchor.parentElement) {
@@ -415,6 +438,10 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
                 continue;
             }
             levels.set(card, renderProjectCard(card.element, card.name));
+        }
+        if (!state.settings.showProjectBanner) {
+            removeProjectFilter(cards);
+            return;
         }
         renderProjectFilterBar(cards, levels);
         applyProjectFilter(cards, levels);

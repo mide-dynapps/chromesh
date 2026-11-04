@@ -132,9 +132,14 @@
         return cursor;
     }
 
+    /** Au-delà, la date reçue est aberrante : mieux vaut le dire que compter faux. */
+    const MAX_SPAN_DAYS = 4000;
+
     /**
      * Signed count of working days in the half-open interval (from, to].
      * Negative when `to` is before `from`.
+     * Returns null when the two dates are more than MAX_SPAN_DAYS apart: a
+     * truncated count would silently look like a valid deadline.
      */
     function countWorkdays(from, to, options = {}) {
         const start = startOfDay(from);
@@ -145,7 +150,12 @@
         const step = end > start ? 1 : -1;
         let cursor = start;
         let count = 0;
-        for (let guard = 0; guard < 4000 && cursor.getTime() !== end.getTime(); guard += 1) {
+        let guard = 0;
+        while (cursor.getTime() !== end.getTime()) {
+            if (guard >= MAX_SPAN_DAYS) {
+                return null;
+            }
+            guard += 1;
             cursor = addDays(cursor, step);
             if (isWorkday(cursor, options)) {
                 count += 1;
@@ -160,6 +170,7 @@
     }
 
     ns.workdays = {
+        MAX_SPAN_DAYS,
         startOfDay,
         isoDay,
         fromIsoDay,

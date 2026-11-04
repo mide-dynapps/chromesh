@@ -6,9 +6,10 @@
  * (SameSite), il délègue à un onglet odoo.sh ouvert. S'il n'y en a aucun, il se
  * contente du dernier état connu — et le dit dans le popup.
  */
+// parse.js n'est pas chargé : il ne sert qu'à lire le DOM, ce que le worker
+// ne fait jamais.
 importScripts(
     "/src/common/workdays.js",
-    "/src/common/parse.js",
     "/src/common/urgency.js",
     "/src/common/settings.js",
     "/src/common/api.js"
@@ -63,7 +64,10 @@ async function maybeNotify(settings, rows) {
             continue;
         }
         const [project, branch] = row.key.split("::");
-        await chrome.notifications.create(`chromesh:${row.key}:${today}`, {
+        // Les deux segments sont encodés : un ':' dans un nom de projet ou de
+        // branche casserait sinon la relecture au clic.
+        const id = `chromesh:${encodeURIComponent(project)}:${encodeURIComponent(branch)}:${today}`;
+        await chrome.notifications.create(id, {
             type: "basic",
             iconUrl: chrome.runtime.getURL("icons/icon128.png"),
             title:
@@ -87,24 +91,25 @@ async function maybeNotify(settings, rows) {
  */
 async function refresh({ force = false } = {}) {
     const settings = await store.getSettings();
-    const status = await store.getStatus();
-    const due = force || Date.now() - (status.lastScanAt || 0) >= settings.refreshHours * 3600000;
-    if (!due) {
+    // Jeton partagé avec les onglets : un seul balayage complet à la fois.
+    const { claimed, previous } = await store.claimScan(settings.refreshHours * 3600000, { force });
+    if (!claimed) {
         return "skipped";
     }
 
     try {
         const projects = await api.listProjects();
-        await store.setStatus({ lastScanAt: Date.now(), lastError: null, collector: "worker" });
+        await store.setStatus({ lastError: null, collector: "worker" });
         for (const project of projects) {
             if (store.isProjectIgnored(project.name, settings.ignored)) {
                 continue;
             }
             // Le slug vient déjà de /app/projects : pas de get_info.
-            await api.collectProject(project.name, {
+            const { keys } = await api.collectProject(project.name, {
                 slug: project.slug,
                 onEntry: (entry) => store.putBranch(entry),
             });
+            await store.pruneProject(project.name, keys);
         }
         return "worker";
     } catch (error) {
@@ -127,6 +132,9 @@ async function refresh({ force = false } = {}) {
             // onglet sans content script actif, on essaie le suivant
         }
     }
+    // Aucun onglet n'a pu collecter : le jeton est rendu, sinon l'ouverture
+    // d'un onglet dans la minute qui suit ne déclencherait rien.
+    await store.releaseScan(previous);
     await store.setStatus({ collector: "none" });
     return "none";
 }
@@ -179,12 +187,15 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 chrome.notifications.onClicked.addListener(async (notificationId) => {
-    const match = /^chromesh:([^:]+)::([^:]+):/.exec(notificationId);
+    const match = /^chromesh:([^:]*):([^:]*):/.exec(notificationId);
     if (!match) {
         return;
     }
-    await chrome.tabs.create({
-        url: `https://www.odoo.sh/project/${match[1]}/branches/${encodeURIComponent(match[2])}/history`,
-    });
+    const project = decodeURIComponent(match[1]);
+    const branch = decodeURIComponent(match[2]);
+    if (!project || !branch) {
+        return;
+    }
+    await chrome.tabs.create({ url: api.branchUrl(project, branch) });
     chrome.notifications.clear(notificationId);
 });

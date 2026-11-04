@@ -16,11 +16,17 @@
     const ns = (root.CHROMESH = root.CHROMESH || {});
     const BASE = "https://www.odoo.sh";
 
+    /**
+     * `status` est le code HTTP quand il y en a un, `code` une cause
+     * applicative : 'non-json', 'odoo-error', 'empty-projects',
+     * 'slug-not-found'. Les appelants trient dessus plutôt que sur le texte.
+     */
     class ApiError extends Error {
-        constructor(message, status) {
+        constructor(message, { status = null, code = null } = {}) {
             super(message);
             this.name = "ApiError";
             this.status = status;
+            this.code = code;
         }
     }
 
@@ -39,11 +45,14 @@
             // Session expirée : Odoo renvoie la page de login en HTML.
             throw new ApiError(
                 `réponse non JSON sur ${path} (HTTP ${response.status}) — session probablement expirée`,
-                response.status
+                { status: response.status, code: "non-json" }
             );
         }
         if (payload.error) {
-            throw new ApiError(payload.error.message || `erreur Odoo sur ${path}`, response.status);
+            throw new ApiError(payload.error.message || `erreur Odoo sur ${path}`, {
+                status: response.status,
+                code: "odoo-error",
+            });
         }
         return payload.result ?? payload;
     }
@@ -118,7 +127,8 @@
         // a au moins un projet. Mieux vaut une erreur lisible qu'un popup muet.
         if (!projects.length) {
             throw new ApiError(
-                `/app/projects n'a renvoyé aucun projet exploitable (${JSON.stringify(result)?.slice(0, 200)})`
+                `/app/projects n'a renvoyé aucun projet exploitable (${JSON.stringify(result)?.slice(0, 200)})`,
+                { code: "empty-projects" }
             );
         }
         return projects;
@@ -135,7 +145,9 @@
         const info = await call(`/app/project/${encodeURIComponent(projectName)}/get_info`);
         const slug = findSlug(info.active_repo) || findSlug(info.repos) || findSlug(info);
         if (!slug) {
-            throw new ApiError(`slug du dépôt introuvable pour le projet ${projectName}`);
+            throw new ApiError(`slug du dépôt introuvable pour le projet ${projectName}`, {
+                code: "slug-not-found",
+            });
         }
         slugCache.set(projectName, slug);
         return slug;
@@ -164,6 +176,9 @@
     /**
      * Collecte les branches staging d'un projet.
      * options: {slug, onEntry(entry)}
+     * Retourne {slug, branches, staging, entries, keys}. `keys` est la liste
+     * des clés de cache vues chez Odoo.sh : l'appelant s'en sert pour purger
+     * du cache les branches disparues.
      */
     async function collectProject(projectName, options = {}) {
         const slug = options.slug || (await projectSlug(projectName));
@@ -197,7 +212,13 @@
                 await options.onEntry(entry);
             }
         }
-        return { slug, branches, staging, entries };
+        return {
+            slug,
+            branches,
+            staging,
+            entries,
+            keys: entries.map((entry) => `${entry.project}::${entry.branch}`),
+        };
     }
 
     ns.api = {

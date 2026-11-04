@@ -1,6 +1,12 @@
 /**
  * Settings (chrome.storage.sync) and branch cache (chrome.storage.local).
  * Exposed as globalThis.CHROMESH.store.
+ *
+ * Toutes les écritures passent par une file (`serialize`). chrome.storage
+ * n'offre pas de compare-and-swap : deux lectures-écritures concurrentes sur
+ * le même objet — deux onglets qui collectent, ou le worker et un onglet —
+ * feraient perdre la première. La file ne protège que le contexte courant ;
+ * entre contextes, c'est `claimScan` qui évite les collectes simultanées.
  */
 (function (root) {
     const ns = (root.CHROMESH = root.CHROMESH || {});
@@ -19,6 +25,29 @@
         scanAllProjects: true,
         ignored: [],
     };
+
+    /** Bornes appliquées aux réglages numériques, à la lecture comme à l'écriture. */
+    const RANGES = {
+        criticalDays: [0, 30],
+        warningDays: [0, 60],
+        notifyHour: [0, 23],
+        refreshHours: [1, 72],
+    };
+
+    /** chrome.storage.sync plafonne chaque clé à 8 192 octets. */
+    const SYNC_ITEM_LIMIT = 8192;
+
+    let queue = Promise.resolve();
+
+    /** Exécute `task` après les écritures déjà en file. */
+    function serialize(task) {
+        const run = queue.then(task, task);
+        queue = run.then(
+            () => undefined,
+            () => undefined
+        );
+        return run;
+    }
 
     /**
      * Une entrée de `ignored` vaut soit une branche précise (`projet::branche`),
@@ -68,13 +97,58 @@
     const NOTIFIED_KEY = "notified";
     const STATUS_KEY = "status";
 
-    async function getSettings() {
-        const stored = await chrome.storage.sync.get(DEFAULTS);
-        return { ...DEFAULTS, ...stored };
+    /** Ramène une valeur dans sa borne, ou renvoie le défaut si elle n'est pas un nombre. */
+    function clamp(name, value) {
+        const range = RANGES[name];
+        const number = Number(value);
+        if (!range || !Number.isFinite(number)) {
+            return Number.isFinite(number) ? number : DEFAULTS[name];
+        }
+        return Math.min(range[1], Math.max(range[0], Math.round(number)));
     }
 
+    /**
+     * Applique les bornes et la cohérence des seuils. Un `warningDays`
+     * inférieur à `criticalDays` rendrait le niveau « attention » inatteignable.
+     */
+    function normalizeSettings(settings) {
+        const next = { ...settings };
+        for (const name of Object.keys(RANGES)) {
+            next[name] = clamp(name, next[name]);
+        }
+        if (next.warningDays < next.criticalDays) {
+            next.warningDays = next.criticalDays;
+        }
+        next.ignored = Array.isArray(next.ignored)
+            ? next.ignored.map((line) => String(line).trim()).filter(Boolean)
+            : [];
+        return next;
+    }
+
+    async function getSettings() {
+        const stored = await chrome.storage.sync.get(DEFAULTS);
+        return normalizeSettings({ ...DEFAULTS, ...stored });
+    }
+
+    /**
+     * Écrit les réglages. Lève si `ignored` dépasse le quota par clé de
+     * chrome.storage.sync : sans ce contrôle, l'écriture échouerait en silence
+     * et l'utilisateur croirait sa liste enregistrée.
+     */
     async function setSettings(patch) {
-        await chrome.storage.sync.set(patch);
+        const next = normalizeSettings({ ...DEFAULTS, ...patch });
+        const clean = Object.fromEntries(Object.keys(patch).map((key) => [key, next[key]]));
+        if (clean.ignored) {
+            const bytes = new TextEncoder().encode(JSON.stringify(clean.ignored)).length;
+            if (bytes > SYNC_ITEM_LIMIT) {
+                throw new Error(
+                    `La liste des branches ignorées pèse ${bytes} octets, au-delà des ` +
+                        `${SYNC_ITEM_LIMIT} autorisés par chrome.storage.sync. Retire des lignes.`
+                );
+            }
+        }
+        await serialize(() => chrome.storage.sync.set(clean));
+        return clean;
     }
 
     /**
@@ -87,14 +161,16 @@
         if (!rule) {
             return (await getSettings()).ignored;
         }
-        const settings = await getSettings();
-        const ignored = settings.ignored || [];
-        if (isIgnored(rule, ignored) || ignored.some((line) => line.trim() === rule)) {
-            return ignored;
-        }
-        const next = [...ignored, rule];
-        await setSettings({ ignored: next });
-        return next;
+        return serialize(async () => {
+            const settings = await getSettings();
+            const ignored = settings.ignored || [];
+            if (isIgnored(rule, ignored) || ignored.some((line) => line.trim() === rule)) {
+                return ignored;
+            }
+            const next = [...ignored, rule];
+            await chrome.storage.sync.set({ ignored: next });
+            return next;
+        });
     }
 
     async function getBranches() {
@@ -107,20 +183,42 @@
      *          readable, branchId, url, fetchedAt}
      */
     async function putBranch(entry) {
-        const branches = await getBranches();
-        const key = `${entry.project}::${entry.branch}`;
-        branches[key] = { ...branches[key], ...entry, fetchedAt: entry.fetchedAt || Date.now() };
-        await chrome.storage.local.set({ [CACHE_KEY]: branches });
-        return branches[key];
+        return serialize(async () => {
+            const branches = await getBranches();
+            const key = `${entry.project}::${entry.branch}`;
+            branches[key] = { ...branches[key], ...entry, fetchedAt: entry.fetchedAt || Date.now() };
+            await chrome.storage.local.set({ [CACHE_KEY]: branches });
+            return branches[key];
+        });
     }
 
     async function dropBranches(keys) {
         if (!keys.length) {
-            return;
+            return [];
         }
+        return serialize(async () => {
+            const branches = await getBranches();
+            const removed = keys.filter((key) => key in branches);
+            removed.forEach((key) => delete branches[key]);
+            await chrome.storage.local.set({ [CACHE_KEY]: branches });
+            return removed;
+        });
+    }
+
+    /**
+     * Aligne le cache d'un projet sur ce que l'API vient de renvoyer : toute
+     * branche absente de `keep` a disparu d'Odoo.sh et doit sortir du cache.
+     * Sans cela, une branche supprimée reste en mémoire, bascule en `expired`
+     * et compte dans le badge indéfiniment.
+     * Retourne les clés retirées.
+     */
+    async function pruneProject(project, keep) {
+        const kept = new Set(keep);
         const branches = await getBranches();
-        keys.forEach((key) => delete branches[key]);
-        await chrome.storage.local.set({ [CACHE_KEY]: branches });
+        const stale = Object.keys(branches).filter(
+            (key) => branches[key].project === project && !kept.has(key)
+        );
+        return dropBranches(stale);
     }
 
     async function getNotified() {
@@ -129,26 +227,60 @@
     }
 
     async function setNotified(map) {
-        await chrome.storage.local.set({ [NOTIFIED_KEY]: map });
+        return serialize(() => chrome.storage.local.set({ [NOTIFIED_KEY]: map }));
     }
+
+    const EMPTY_STATUS = { lastScanAt: 0, lastError: null, lastErrorAt: 0 };
 
     /** Dernier état de la collecte : succès, erreur, date du dernier scan complet. */
     async function getStatus() {
-        const data = await chrome.storage.local.get({
-            [STATUS_KEY]: { lastScanAt: 0, lastError: null, lastErrorAt: 0 },
-        });
-        return data[STATUS_KEY];
+        const data = await chrome.storage.local.get({ [STATUS_KEY]: EMPTY_STATUS });
+        return { ...EMPTY_STATUS, ...data[STATUS_KEY] };
     }
 
-    async function setStatus(patch) {
+    async function writeStatus(patch) {
         const current = await getStatus();
         const next = { ...current, ...patch };
         await chrome.storage.local.set({ [STATUS_KEY]: next });
         return next;
     }
 
+    async function setStatus(patch) {
+        return serialize(() => writeStatus(patch));
+    }
+
+    /**
+     * Réserve le balayage complet. `lastScanAt` sert de jeton : il est posé
+     * avant la collecte, donc un deuxième contexte — autre onglet, service
+     * worker — voit l'échéance comme non atteinte et renonce.
+     *
+     * Retourne {claimed, previous}. En cas d'échec de la collecte, l'appelant
+     * doit rendre le jeton par `releaseScan(previous)` : sinon l'erreur
+     * bloquerait toute reprise jusqu'à la prochaine échéance.
+     */
+    async function claimScan(intervalMs, { force = false } = {}) {
+        return serialize(async () => {
+            const status = await getStatus();
+            const previous = status.lastScanAt || 0;
+            if (!force && Date.now() - previous < intervalMs) {
+                return { claimed: false, previous };
+            }
+            await writeStatus({ lastScanAt: Date.now() });
+            return { claimed: true, previous };
+        });
+    }
+
+    /** Rend le jeton pris par `claimScan`, pour autoriser une reprise immédiate. */
+    async function releaseScan(previous) {
+        return serialize(() => writeStatus({ lastScanAt: previous || 0 }));
+    }
+
     ns.store = {
         DEFAULTS,
+        RANGES,
+        SYNC_ITEM_LIMIT,
+        clamp,
+        normalizeSettings,
         isIgnored,
         isProjectIgnored,
         getSettings,
@@ -157,9 +289,12 @@
         getBranches,
         putBranch,
         dropBranches,
+        pruneProject,
         getNotified,
         setNotified,
         getStatus,
         setStatus,
+        claimScan,
+        releaseScan,
     };
 })(globalThis);
