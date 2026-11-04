@@ -1,177 +1,268 @@
 <title>Chromesh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ---------------------------------------------------------------- tokens */
 :root{
-  --midnight:#050543; --violet:#951CF3; --carmine:#FF575D; --orange:#FF7759; --tangerine:#FF7E23;
-  --deep:#030330;
-  --snow:#F5F5FA; --off-white:#F6F5F8; --white:#FFFFFF;
-  --tw:rgba(255,255,255,.92); --td:rgba(255,255,255,.54); --tdd:rgba(255,255,255,.28); --lm:#7272A8;
-  --grey-100:#E8E7EC; --grey-200:#CDCBD4; --grey-400:#9290A6; --grey-600:#65637A;
-  --grad: linear-gradient(45deg, var(--violet) 0%, var(--carmine) 52%, var(--orange) 100%);
-  --grad-h: linear-gradient(90deg, var(--violet) 0%, var(--carmine) 52%, var(--orange) 100%);
-  --grad-v: linear-gradient(180deg, var(--violet) 0%, var(--carmine) 52%, var(--orange) 100%);
-  --sidebar-w: 280px;
+  /* Charte Dynapps */
+  --midnight:#050543; --deep:#030330; --violet:#951CF3; --carmine:#FF575D;
+  --orange:#FF7759; --tangerine:#FF7E23;
+  --grad:linear-gradient(45deg,var(--violet) 0%,var(--carmine) 52%,var(--orange) 100%);
+  --grad-h:linear-gradient(90deg,var(--violet) 0%,var(--carmine) 52%,var(--orange) 100%);
+  --grad-v:linear-gradient(180deg,var(--violet) 0%,var(--carmine) 52%,var(--orange) 100%);
+
+  /* Neutres tirés vers le violet de la charte, jamais un gris pur */
+  --ground:#F6F5FA; --surface:#FFFFFF; --surface-2:#EFEDF5;
+  --line:#E2DFEC; --line-strong:#CDC9DC;
+  --ink:#050543; --ink-2:#4A4868; --ink-3:#716E8C;
+
+  /* Barre latérale : toujours sombre, c'est l'ancrage de la marque */
+  --rail:#050543; --rail-line:rgba(255,255,255,.07);
+  --rail-ink:rgba(255,255,255,.92); --rail-ink-2:rgba(255,255,255,.56);
+  --rail-ink-3:rgba(255,255,255,.3);
+
+  /* Sémantique d'urgence — distincte de l'accent de marque */
+  --ok-bg:#E3F6EC; --ok-ink:#1B6B41;
+  --warn-bg:#FFF0E0; --warn-ink:#A2520B;
+  --crit-bg:#FFE6E7; --crit-ink:#B51E24;
+  --gone-bg:#E8E7EC; --gone-ink:#65637A;
+
+  --radius:10px;
+  --measure:66ch;
 }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0B0B22; --surface:#13132F; --surface-2:#1A1A3C;
+    --line:#262552; --line-strong:#343266;
+    --ink:#EDECF7; --ink-2:#B9B6D4; --ink-3:#8B88AC;
+    --ok-bg:#12331F; --ok-ink:#7BD6A0;
+    --warn-bg:#3A2409; --warn-ink:#FFB561;
+    --crit-bg:#3C1013; --crit-ink:#FF8E92;
+    --gone-bg:#23223F; --gone-ink:#9B98BC;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0B0B22; --surface:#13132F; --surface-2:#1A1A3C;
+  --line:#262552; --line-strong:#343266;
+  --ink:#EDECF7; --ink-2:#B9B6D4; --ink-3:#8B88AC;
+  --ok-bg:#12331F; --ok-ink:#7BD6A0;
+  --warn-bg:#3A2409; --warn-ink:#FFB561;
+  --crit-bg:#3C1013; --crit-ink:#FF8E92;
+  --gone-bg:#23223F; --gone-ink:#9B98BC;
+}
+
+/* ----------------------------------------------------------------- base */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px; scroll-behavior:smooth}
-body{font-family:'Readex Pro',system-ui,sans-serif;background:var(--snow);color:var(--midnight);-webkit-font-smoothing:antialiased;line-height:1.55}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:'Readex Pro',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-weight:300; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--violet);outline-offset:3px;border-radius:4px}
+code,kbd{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace;font-size:.86em}
 
-/* SIDEBAR */
-.sidebar{
-  position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w); z-index:100;
-  background:var(--midnight); border-right:1px solid rgba(255,255,255,0.06);
+/* --------------------------------------------------------------- rail */
+.rail{
+  position:fixed; inset:0 auto 0 0; width:272px; z-index:20;
   display:flex; flex-direction:column; overflow-y:auto;
+  background:var(--rail); border-right:1px solid var(--rail-line);
 }
-.sidebar::after{content:'';position:absolute;top:0;bottom:0;right:0;width:1px;background:var(--grad-v);opacity:.4}
-.sidebar-brand{padding:1.6rem 1.6rem 1.4rem;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid rgba(255,255,255,0.06)}
-.sidebar-brand svg{height:22px;width:auto;display:block}
-.sidebar-meta{padding:1.4rem 1.6rem 1rem}
-.sidebar-meta .eyebrow{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--lm)}
-.sidebar-meta .doc-title{margin-top:.4rem;font-size:.95rem;font-weight:600;color:var(--tw);line-height:1.35}
-.sidebar-meta .doc-sub{margin-top:.4rem;font-size:.78rem;color:var(--td)}
-.sidebar nav{padding:.8rem 0 1.5rem;flex:1;display:flex;flex-direction:column}
-.sidebar-section-label{padding:.9rem 1.6rem .4rem;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--tdd)}
-.sidebar nav a{display:flex;align-items:center;gap:.7rem;padding:.6rem 1.6rem;font-size:.85rem;font-weight:400;color:var(--td);border-left:2px solid transparent;transition:color .2s ease,background .2s ease,border-color .2s ease}
-.sidebar nav a:hover{color:var(--tw);background:rgba(255,255,255,.03)}
-.sidebar nav a.active{color:var(--tw);background:rgba(255,87,93,.06);border-left-color:var(--carmine);font-weight:500}
-.sidebar-foot{padding:1.2rem 1.6rem;border-top:1px solid rgba(255,255,255,0.06);font-size:.7rem;color:var(--lm);display:flex;align-items:center;justify-content:space-between;gap:.6rem}
-.sidebar-foot .grad-dot{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
+.rail::after{content:'';position:absolute;inset:0 0 0 auto;width:1px;background:var(--grad-v);opacity:.45}
+.rail-brand{padding:1.5rem 1.5rem 1.3rem;border-bottom:1px solid var(--rail-line)}
+.rail-brand svg{height:21px;width:auto;display:block}
+.rail-id{padding:1.3rem 1.5rem 1rem;display:flex;flex-direction:column;gap:.35rem}
+.rail-id .eyebrow{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--rail-ink-3)}
+.rail-id .name{font-size:1.05rem;font-weight:600;color:var(--rail-ink)}
+.rail-id .sub{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--rail-ink-2)}
+.rail nav{flex:1;padding:.6rem 0 1.4rem;display:flex;flex-direction:column}
+.rail nav a{
+  padding:.55rem 1.5rem; font-size:.86rem; color:var(--rail-ink-2);
+  border-left:2px solid transparent;
+  transition:color .18s ease,background .18s ease,border-color .18s ease;
+}
+.rail nav a:hover{color:var(--rail-ink);background:rgba(255,255,255,.04)}
+.rail nav a.active{color:var(--rail-ink);background:rgba(255,87,93,.08);border-left-color:var(--carmine);font-weight:500}
+.rail-foot{
+  padding:1rem 1.5rem; border-top:1px solid var(--rail-line);
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+  font-size:.68rem; color:var(--rail-ink-3);
+}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
 
-/* MAIN */
-.main{margin-left:var(--sidebar-w)}
-section{padding:5.5rem 3.5rem; scroll-margin-top:1.5rem; position:relative}
-.wrap{max-width:920px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:1.4rem}
+/* --------------------------------------------------------------- layout */
+.main{margin-left:272px}
+section{padding:4.5rem 3rem;scroll-margin-top:1rem}
+.wrap{max-width:940px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+.on-dark{background:var(--midnight);color:rgba(255,255,255,.92)}
+.on-dark .lede,.on-dark .b-list li{color:rgba(255,255,255,.58)}
+.on-dark .b-list li strong,.on-dark h3{color:rgba(255,255,255,.92)}
+.on-dark .eyebrow{color:rgba(255,255,255,.34)}
+.on-dark code{background:rgba(255,255,255,.1);color:var(--tangerine)}
+.alt{background:var(--surface-2)}
 
-/* HERO */
+/* ------------------------------------------------------------------ type */
+.eyebrow{font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-size:clamp(2.2rem,4.4vw,3.3rem);font-weight:700;line-height:1.07;letter-spacing:-.02em;max-width:19ch;text-wrap:balance}
+h2{font-size:clamp(1.55rem,2.3vw,2.05rem);font-weight:600;line-height:1.18;letter-spacing:-.01em;text-wrap:balance}
+h3{font-size:1.02rem;font-weight:600;letter-spacing:-.005em}
+.lede{font-size:1rem;color:var(--ink-2);max-width:var(--measure)}
+.hero-lede{font-size:1.05rem;color:rgba(255,255,255,.6);max-width:60ch}
+p{max-width:var(--measure)}
+.accent{color:var(--carmine)}
+.on-dark .accent{color:var(--tangerine)}
+code:not(pre code){background:var(--surface-2);color:var(--violet);padding:.1rem .36rem;border-radius:4px}
+
+/* ------------------------------------------------------------------ hero */
 .hero{
-  min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end;
-  padding:6rem 3.5rem 4rem; background:var(--midnight); color:var(--tw);
-  position:relative; overflow:hidden; align-items:flex-start; gap:0;
+  min-height:88vh; display:flex; flex-direction:column; justify-content:flex-end;
+  gap:0; padding:5.5rem 3rem 3.5rem; background:var(--midnight);
+  color:rgba(255,255,255,.92); position:relative; overflow:hidden;
 }
-.hero::before{content:'';position:absolute;top:-30%;right:-15%;width:60vw;height:60vw;border-radius:50%;background:radial-gradient(circle,rgba(149,28,243,.10) 0%,transparent 70%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:-25%;left:-10%;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(circle,rgba(255,87,93,.08) 0%,transparent 70%);pointer-events:none}
-.hero > *{position:relative;z-index:1}
-.hero .badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .9rem;border-radius:100px;background:rgba(255,87,93,.10);border:1px solid rgba(255,87,93,.22);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--carmine);width:fit-content}
-.hero h1{font-size:clamp(2.4rem,4.8vw,3.6rem);font-weight:700;line-height:1.08;margin:1.4rem 0 1.1rem;max-width:20ch;text-wrap:balance}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;pointer-events:none}
+.hero::before{top:-28%;right:-14%;width:58vw;height:58vw;background:radial-gradient(circle,rgba(149,28,243,.12) 0%,transparent 70%)}
+.hero::after{bottom:-24%;left:-10%;width:48vw;height:48vw;background:radial-gradient(circle,rgba(255,87,93,.09) 0%,transparent 70%)}
+.hero>*{position:relative;z-index:1}
+.tag{
+  display:inline-flex;align-items:center;gap:.5rem;width:fit-content;
+  padding:.35rem .85rem;border-radius:100px;
+  background:rgba(255,87,93,.1);border:1px solid rgba(255,87,93,.24);
+  font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--carmine);
+}
+.hero h1{margin:1.3rem 0 1rem}
 .hero h1 .accent{color:var(--tangerine)}
-.hero .lede{font-size:1.05rem;color:var(--td);max-width:62ch;line-height:1.6}
-.hero .meta{margin-top:2.4rem;display:flex;gap:2.4rem;flex-wrap:wrap;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.08);width:100%}
-.hero .meta .item .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--tdd);font-weight:500}
-.hero .meta .item .val{font-size:.92rem;color:var(--tw);margin-top:.3rem;font-weight:500}
-.hero .cta{margin-top:2rem}
 
-/* CTA */
-.btn{display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 1.5rem;border-radius:10px;background:var(--grad-h);color:var(--white);font-weight:600;font-size:.95rem;font-family:inherit;border:none;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 6px 22px rgba(149,28,243,.28)}
-.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(149,28,243,.36)}
-.btn .size{font-weight:400;opacity:.8;font-size:.85rem}
-.btn-note{margin-top:.7rem;font-size:.78rem;color:var(--td)}
-.btn-note a,.b-list a{text-decoration:underline;text-underline-offset:2px;font-weight:500}
-.btn-note a:hover,.b-list a:hover{color:var(--tangerine)}
+/* --------------------------------------------------------------- facts */
+.facts{
+  margin-top:2.2rem;padding-top:1.3rem;width:100%;
+  border-top:1px solid rgba(255,255,255,.1);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.4rem;
+}
+.facts .k{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:rgba(255,255,255,.32);font-weight:500}
+.facts .v{margin-top:.25rem;font-size:.9rem;font-weight:500;color:rgba(255,255,255,.92);font-variant-numeric:tabular-nums}
 
-/* SECTION CHROME */
-.eyebrow-s{font-size:11px;font-weight:500;letter-spacing:.22em;color:var(--grey-400);text-transform:uppercase}
-h2{font-size:clamp(1.7rem,2.4vw,2.2rem);font-weight:600;line-height:1.15;text-wrap:balance}
-h2 .accent{color:var(--carmine)}
-h3{font-size:1.1rem;font-weight:600;color:var(--midnight)}
-.section-lede{font-size:.98rem;color:var(--grey-600);max-width:64ch;line-height:1.6}
-.on-dark{background:var(--midnight);color:var(--tw)}
-.on-dark .section-lede{color:var(--td)}
-.on-dark h3{color:var(--tw)}
-.on-dark .eyebrow-s{color:var(--tdd)}
+/* ------------------------------------------------------------------- cta */
+.cta{margin-top:1.8rem;display:flex;flex-direction:column;gap:.6rem;align-items:flex-start}
+.btn{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.8rem 1.4rem;border-radius:var(--radius);border:none;
+  background:var(--grad-h);color:#fff;font-family:inherit;font-weight:600;font-size:.92rem;
+  cursor:pointer;box-shadow:0 6px 20px rgba(149,28,243,.26);
+  transition:transform .16s ease,box-shadow .16s ease;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(149,28,243,.34)}
+.btn .size{font-weight:400;opacity:.82;font-size:.84rem;font-variant-numeric:tabular-nums}
+.note{font-size:.78rem;color:rgba(255,255,255,.52);max-width:58ch}
+.note a,.b-list a,.prose a,.callout a{text-decoration:underline;text-underline-offset:2px;font-weight:500}
+.note a:hover,.b-list a:hover,.prose a:hover{color:var(--tangerine)}
 
-/* PROSE */
-.prose{display:flex;flex-direction:column;gap:1rem}
-.prose p{font-size:1rem;line-height:1.7;color:var(--midnight);max-width:64ch}
-.on-dark .prose p{color:var(--tw)}
+/* ----------------------------------------------------------------- lists */
+.b-list{display:flex;flex-direction:column;gap:.65rem;list-style:none}
+.b-list li{position:relative;padding-left:1.4rem;font-size:.94rem;color:var(--ink-2);max-width:var(--measure)}
+.b-list li::before{content:'';position:absolute;left:0;top:.6em;width:7px;height:7px;border-radius:2px;background:var(--grad)}
+.b-list li strong{color:var(--ink);font-weight:600}
 
-/* QUOTE */
-.pull{border-left:3px solid var(--carmine);padding:.3rem 0 .3rem 1.2rem;font-size:1.02rem;color:var(--grey-600);font-style:italic;max-width:60ch}
-.on-dark .pull{color:var(--td)}
+/* steps : séquence réelle, l'ordre porte l'information */
+.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:1.25rem}
+.steps li{display:grid;grid-template-columns:2.1rem 1fr;gap:1rem;align-items:start}
+.steps li::before{
+  counter-increment:s;content:counter(s);
+  width:2.1rem;height:2.1rem;border-radius:50%;background:var(--grad);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.86rem;font-weight:600;font-variant-numeric:tabular-nums;
+}
+.steps .body{display:flex;flex-direction:column;gap:.35rem;padding-top:.2rem;min-width:0}
+.steps strong{font-weight:600}
+.steps p{font-size:.92rem;color:var(--ink-2)}
 
-/* CODE */
-code{font-family:'SFMono-Regular',Consolas,monospace;font-size:.88em;background:var(--off-white);padding:.12rem .38rem;border-radius:4px;color:var(--violet);word-break:break-word}
-.on-dark code{background:rgba(255,255,255,.08);color:var(--tangerine)}
-pre{background:var(--midnight);color:var(--tw);padding:1.1rem 1.2rem;border-radius:10px;overflow-x:auto;font-size:.85rem;line-height:1.5}
-pre code{background:transparent;color:inherit;padding:0;word-break:normal}
+/* ---------------------------------------------------------------- tables */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:.89rem}
+th,td{padding:.65rem .9rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{
+  background:var(--surface-2);font-size:.7rem;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;
+}
+tr:last-child td{border-bottom:none}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* TABLE */
-.table-scroll{overflow-x:auto}
-table.data{width:100%;border-collapse:collapse;font-size:.92rem;border:1px solid var(--grey-100);background:var(--white)}
-table.data th, table.data td{padding:.7rem 1rem;border-bottom:1px solid var(--grey-100);text-align:left;vertical-align:top}
-table.data th{background:var(--off-white);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--grey-600)}
-table.data tr:last-child td{border-bottom:none}
-
-/* PASTILLES — l'objet même de l'extension */
-.pill{display:inline-flex;align-items:center;padding:.14rem .55rem;border-radius:100px;font-size:.72rem;font-weight:600;letter-spacing:.04em;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pill-ok{background:#E3F6EC;color:#1B6B41}
-.pill-warn{background:#FFF0E0;color:#A2520B}
-.pill-crit{background:#FFE6E7;color:#B51E24}
-.pill-gone{background:var(--grey-100);color:var(--grey-600);text-decoration:line-through}
-
-/* STEPS — vraie séquence, donc vraiment numérotée */
-.steps{display:flex;flex-direction:column;gap:1.5rem;counter-reset:step;list-style:none}
-.steps > li{display:grid;grid-template-columns:2.3rem 1fr;gap:1.1rem;align-items:start}
-.steps > li::before{
-  counter-increment:step;content:counter(step);
-  width:2.3rem;height:2.3rem;border-radius:50%;background:var(--grad);color:var(--white);
-  display:flex;align-items:center;justify-content:center;font-size:.92rem;font-weight:600;
+/* --------------------------------------------------------------- pills */
+.pill{
+  display:inline-flex;align-items:center;padding:.12rem .5rem;border-radius:100px;
+  font-size:.7rem;font-weight:600;letter-spacing:.03em;white-space:nowrap;
   font-variant-numeric:tabular-nums;
 }
-.steps .body{display:flex;flex-direction:column;gap:.5rem;padding-top:.25rem;min-width:0}
-.steps .body p{font-size:.96rem;color:var(--grey-600);line-height:1.6;max-width:62ch}
-.steps .body strong{color:var(--midnight);font-weight:600}
+.p-ok{background:var(--ok-bg);color:var(--ok-ink)}
+.p-warn{background:var(--warn-bg);color:var(--warn-ink)}
+.p-crit{background:var(--crit-bg);color:var(--crit-ink)}
+.p-gone{background:var(--gone-bg);color:var(--gone-ink);text-decoration:line-through}
 
-/* BULLET LIST */
-.b-list{display:flex;flex-direction:column;gap:.7rem;list-style:none}
-.b-list li{padding-left:1.5rem;position:relative;font-size:.95rem;color:var(--grey-600);line-height:1.6;max-width:64ch}
-.b-list li::before{content:'';position:absolute;left:0;top:.55em;width:8px;height:8px;border-radius:2px;background:var(--grad)}
-.b-list li strong{color:var(--midnight);font-weight:600}
-.on-dark .b-list li{color:var(--td)}
-.on-dark .b-list li strong{color:var(--tw)}
+/* -------------------------------------------------------------- callout */
+.callout{
+  background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--tangerine);
+  border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.2rem;
+  display:flex;flex-direction:column;gap:.4rem;
+}
+.callout .t{font-size:.74rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tangerine)}
+.callout p{font-size:.9rem;color:var(--ink-2)}
+.callout.warn{border-left-color:var(--carmine)}
+.callout.warn .t{color:var(--carmine)}
+.on-dark .callout{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
+.on-dark .callout p{color:rgba(255,255,255,.62)}
 
-/* CALLOUT */
-.callout{background:var(--white);border:1px solid var(--grey-100);border-left:3px solid var(--tangerine);border-radius:0 10px 10px 0;padding:1.1rem 1.3rem;display:flex;flex-direction:column;gap:.45rem}
-.callout .t{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tangerine)}
-.callout p{font-size:.93rem;color:var(--grey-600);line-height:1.6;max-width:64ch}
+/* ----------------------------------------------------------------- quote */
+.pull{
+  border-left:3px solid var(--carmine);padding:.2rem 0 .2rem 1.1rem;
+  font-size:1rem;font-style:italic;color:var(--ink-2);max-width:58ch;
+}
 
-/* FOOTER */
-.footer-grad{height:3px;background:var(--grad-h)}
-footer{padding:1.6rem 3.5rem;background:var(--deep);color:var(--lm);font-size:.72rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-footer .left strong{color:var(--tw);font-weight:500}
+/* ---------------------------------------------------------------- footer */
+.grad-line{height:3px;background:var(--grad-h)}
+footer{
+  padding:1.4rem 3rem;background:var(--deep);color:rgba(255,255,255,.34);
+  font-size:.7rem;display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;flex-wrap:wrap;
+}
+footer strong{color:rgba(255,255,255,.8);font-weight:500}
 
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
+/* --------------------------------------------------------------- reveal */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+.reveal.visible{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .reveal{opacity:1;transform:none;transition:none}
-  .btn{transition:none}
-  .btn:hover{transform:none}
+  .btn,.btn:hover{transition:none;transform:none}
 }
 
-/* RESPONSIVE */
-.menu-btn{position:fixed;top:1rem;left:1rem;z-index:101;background:var(--midnight);color:var(--tw);border:1px solid rgba(255,255,255,.1);padding:.5rem .8rem;border-radius:8px;font-size:.85rem;cursor:pointer;font-family:inherit}
-@media(min-width:761px){.menu-btn{display:none}}
-@media(max-width:1100px){:root{--sidebar-w:240px} section,.hero,footer{padding-left:2.4rem;padding-right:2.4rem}}
-@media(max-width:760px){
-  .sidebar{transform:translateX(-100%);transition:transform .3s ease;width:260px}
-  .sidebar.open{transform:translateX(0)}
+/* ----------------------------------------------------------- responsive */
+.menu{
+  position:fixed;top:.9rem;left:.9rem;z-index:30;
+  padding:.45rem .75rem;border-radius:8px;border:1px solid rgba(255,255,255,.12);
+  background:var(--midnight);color:rgba(255,255,255,.92);
+  font-family:inherit;font-size:.82rem;cursor:pointer;
+}
+@media(min-width:881px){.menu{display:none}}
+@media(max-width:1100px){
+  .rail{width:232px}
+  .main{margin-left:232px}
+  section,.hero,footer{padding-left:2.2rem;padding-right:2.2rem}
+}
+@media(max-width:880px){
+  .rail{transform:translateX(-100%);transition:transform .25s ease;width:260px}
+  .rail.open{transform:none}
   .main{margin-left:0}
-  section{padding:4rem 1.5rem}
-  .hero{padding:5rem 1.5rem 3rem;min-height:92vh}
-  footer{padding:1.25rem 1.5rem;flex-direction:column;gap:.5rem;text-align:center}
+  section{padding:3.5rem 1.35rem}
+  .hero{padding:4.5rem 1.35rem 2.75rem;min-height:auto}
+  footer{padding:1.2rem 1.35rem;flex-direction:column;text-align:center;gap:.4rem}
 }
 </style>
 
-<button class="menu-btn" type="button" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menu</button>
+<button class="menu" type="button" id="menu" aria-expanded="false" aria-controls="rail">Sommaire</button>
 
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <svg viewBox="0 0 573 110" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dynapps">
+<aside class="rail" id="rail">
+  <div class="rail-brand"><svg viewBox="0 0 573 110" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dynapps">
       <path d="M187.854 81.4536C183.339 81.4536 179.248 80.311 175.583 78.0258C171.984 75.7405 169.137 72.5739 167.043 68.5258C165.014 64.4124 164 59.7766 164 54.6186C164 49.3952 165.014 44.7595 167.043 40.7113C169.137 36.6632 171.984 33.4639 175.583 31.1134C179.183 28.7629 183.273 27.5876 187.854 27.5876C190.276 27.5876 192.599 27.9794 194.824 28.7629C197.114 29.4811 199.143 30.4931 200.91 31.799C202.677 33.1048 204.117 34.5739 205.229 36.2062C206.342 37.7732 206.996 39.4055 207.193 41.1031L203.659 41.7887V8H217.5V80.4742H204.346L203.757 68.5258L206.506 68.9175C206.44 70.4845 205.884 72.0189 204.837 73.5206C203.79 75.0223 202.383 76.3935 200.616 77.634C198.914 78.8093 196.951 79.756 194.726 80.4742C192.566 81.1271 190.276 81.4536 187.854 81.4536ZM190.897 69.8969C193.58 69.8969 195.871 69.244 197.769 67.9381C199.732 66.6323 201.27 64.8368 202.383 62.5515C203.495 60.2663 204.051 57.622 204.051 54.6186C204.051 51.5498 203.495 48.8729 202.383 46.5876C201.27 44.2371 199.732 42.4416 197.769 41.201C195.871 39.8952 193.58 39.2423 190.897 39.2423C188.345 39.2423 186.087 39.8952 184.124 41.201C182.161 42.4416 180.623 44.2371 179.51 46.5876C178.463 48.8729 177.939 51.5498 177.939 54.6186C177.939 57.622 178.463 60.2663 179.51 62.5515C180.623 64.8368 182.161 66.6323 184.124 67.9381C186.087 69.244 188.345 69.8969 190.897 69.8969Z" fill="white"/>
       <path d="M238.553 103L249.94 76.4588L250.136 84.5876L224.711 28.6649H240.516L253.277 58.732C253.736 59.7766 254.226 61.0498 254.75 62.5515C255.273 64.0533 255.666 65.4897 255.928 66.8608L253.572 67.8402C254.03 66.7302 254.488 65.457 254.946 64.0206C255.47 62.5842 255.993 61.0498 256.517 59.4175L267.413 28.6649H283.414L261.621 80.4742L252.688 103H238.553Z" fill="white"/>
       <path d="M291.11 80.4742V28.6649H304.559L304.951 39.2423L302.203 40.4175C302.857 38.067 304.133 35.945 306.031 34.0515C307.929 32.0928 310.187 30.5258 312.805 29.3505C315.422 28.1753 318.138 27.5876 320.952 27.5876C324.879 27.5876 328.151 28.3711 330.769 29.9381C333.452 31.5052 335.448 33.8883 336.757 37.0876C338.131 40.2217 338.818 44.1392 338.818 48.8402V80.4742H324.879V49.8196C324.879 47.4691 324.552 45.5103 323.897 43.9433C323.243 42.3763 322.261 41.2337 320.952 40.5155C319.644 39.7973 317.975 39.4708 315.946 39.5361C314.375 39.5361 312.936 39.7972 311.627 40.3196C310.318 40.7766 309.14 41.4622 308.093 42.3763C307.111 43.2904 306.358 44.335 305.835 45.5103C305.311 46.6856 305.05 47.9914 305.05 49.4278V80.4742H298.08C296.64 80.4742 295.331 80.4742 294.153 80.4742C292.975 80.4742 291.961 80.4742 291.11 80.4742Z" fill="white"/>
@@ -181,231 +272,262 @@ footer .left strong{color:var(--tw);font-weight:500}
       <path d="M552.385 81.4536C547.608 81.4536 543.321 80.6701 539.526 79.1031C535.795 77.5361 532.752 75.3162 530.396 72.4433L539.133 65C541.162 67.1546 543.387 68.7216 545.808 69.701C548.295 70.6151 550.815 71.0722 553.367 71.0722C554.283 71.0722 555.134 70.9742 555.919 70.7783C556.705 70.5172 557.392 70.1907 557.981 69.799C558.57 69.3419 558.995 68.8196 559.257 68.232C559.584 67.6443 559.748 66.9588 559.748 66.1753C559.748 64.7388 559.159 63.6289 557.981 62.8454C557.457 62.4536 556.476 62.0292 555.036 61.5722C553.661 61.0498 551.894 60.4948 549.735 59.9072C546.397 59.0584 543.583 58.079 541.293 56.9691C539.002 55.7938 537.137 54.4553 535.697 52.9536C534.519 51.7131 533.603 50.2766 532.949 48.6443C532.36 47.012 532.065 45.2165 532.065 43.2577C532.065 40.1237 532.981 37.3814 534.814 35.0309C536.646 32.6804 539.068 30.8522 542.078 29.5464C545.154 28.2405 548.491 27.5876 552.091 27.5876C554.774 27.5876 557.359 27.9141 559.846 28.567C562.398 29.2199 564.754 30.1667 566.914 31.4072C569.139 32.5825 571.069 33.9863 572.706 35.6186L565.245 43.9433C564.067 42.768 562.725 41.756 561.22 40.9072C559.715 39.9931 558.21 39.2749 556.705 38.7526C555.199 38.1649 553.825 37.8711 552.582 37.8711C551.469 37.8711 550.455 37.9691 549.539 38.1649C548.688 38.3608 547.968 38.6873 547.379 39.1443C546.79 39.5361 546.332 40.0258 546.005 40.6134C545.743 41.201 545.612 41.854 545.612 42.5722C545.612 43.2904 545.776 43.9759 546.103 44.6289C546.495 45.2165 547.019 45.7715 547.673 46.2938C548.328 46.6856 549.375 47.1426 550.815 47.6649C552.32 48.1873 554.25 48.7749 556.606 49.4278C559.748 50.2766 562.398 51.2234 564.558 52.268C566.717 53.3127 568.452 54.5206 569.761 55.8918C570.939 57.067 571.757 58.4381 572.215 60.0052C572.738 61.5069 573 63.1392 573 64.9021C573 68.1014 572.084 70.9742 570.251 73.5206C568.484 76.0017 566.03 77.9605 562.889 79.3969C559.813 80.768 556.312 81.4536 552.385 81.4536Z" fill="white"/>
       <path d="M54.7097 0.562951L54.3857 0C45.7021 0.0892027 37.1638 2.2387 29.4724 6.27174C21.781 10.3048 15.1563 16.1062 10.1428 23.1992H36.5743H67.6952L54.7097 0.562951ZM7.7299 28.0352H7.07336C2.80674 35.61 0.398038 44.0896 0.0452654 52.7769C-0.307507 61.4642 1.40572 70.1113 5.0441 78.0073L18.2854 55.0725L33.8544 28.112L7.7299 28.0352ZM8.0283 82.468L7.7043 83.0395C12.1245 90.5157 18.255 96.8361 25.5919 101.481C32.9289 106.127 41.2629 108.964 49.9094 109.761L36.6766 86.8264H36.634L21.0735 59.8658L8.0283 82.468ZM55.298 109.429L55.6305 110C64.3142 109.906 72.8518 107.754 80.5427 103.72C88.2336 99.6856 94.8584 93.8843 99.8734 86.7923H73.3993H42.2784L55.298 109.429ZM102.278 81.9563H102.934C107.196 74.3875 109.602 65.9154 109.955 57.2358C110.307 48.5562 108.597 39.9167 104.964 32.0269L91.7308 54.9787L76.1703 81.9392L102.278 81.9563ZM101.979 27.5235L102.312 26.9606C97.8897 19.4835 91.7578 13.1622 84.4197 8.51553C77.0815 3.8689 68.7463 1.02944 60.0983 0.230303L73.3396 23.1651L88.9001 50.1256L101.979 27.5235Z" fill="url(#g)"/>
       <defs><linearGradient id="g" x1="-16.6116" y1="126.894" x2="131.099" y2="-21.6793" gradientUnits="userSpaceOnUse"><stop stop-color="#7B00DC"/><stop offset="0.62348" stop-color="#F13C42"/><stop offset="1" stop-color="#FF911F"/></linearGradient></defs>
-    </svg>
-  </div>
-  <div class="sidebar-meta">
-    <div class="eyebrow">Outil interne</div>
-    <div class="doc-title">Chromesh</div>
-    <div class="doc-sub">Extension Edge / Chrome · v0.3.1</div>
+    </svg></div>
+  <div class="rail-id">
+    <span class="eyebrow">Outil interne</span>
+    <span class="name">Chromesh</span>
+    <span class="sub">v0.4.0 · Edge &amp; Chrome</span>
   </div>
   <nav>
-    <a href="#intro" data-target="intro">Ce que c'est</a>
+    <a href="#intro" data-target="intro">Présentation</a>
     <a href="#probleme" data-target="probleme">Le problème</a>
     <a href="#affichage" data-target="affichage">Ce que tu vois</a>
+    <a href="#calcul" data-target="calcul">Le calcul</a>
     <a href="#installer" data-target="installer">Installer</a>
     <a href="#reglages" data-target="reglages">Réglages</a>
-    <a href="#nouveautes" data-target="nouveautes">Nouveautés</a>
-    <a href="#limites" data-target="limites">Données et limites</a>
+    <a href="#donnees" data-target="donnees">Données</a>
+    <a href="#fiabilite" data-target="fiabilite">Fiabilité</a>
+    <a href="#versions" data-target="versions">Versions</a>
     <a href="#support" data-target="support">Un souci ?</a>
   </nav>
-  <div class="sidebar-foot">
-    <span>Dynapps · Usage interne</span>
-    <span class="grad-dot"></span>
-  </div>
+  <div class="rail-foot"><span>Dynapps · Usage interne</span><span class="dot"></span></div>
 </aside>
 
 <div class="main">
 
   <section class="hero" id="intro">
-    <div class="badge">Usage interne · Dynapps</div>
+    <span class="tag">Usage interne · Dynapps</span>
     <h1>Ne perds plus un build staging <span class="accent">par inattention</span></h1>
-    <p class="lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh directement sur les branches, comptée en jours ouvrés. Installation en cinq minutes, pas de compte à créer.</p>
+    <p class="hero-lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh là où tu travailles déjà, comptée en jours ouvrés. Installation en cinq minutes, aucun compte à créer.</p>
     <div class="cta">
-      <a class="btn" id="dl" href="https://github.com/yale-dynapps/chromesh/releases/download/0.3.1/chromesh-0.3.1.zip" target="_blank" rel="noopener">Télécharger chromesh-0.3.1.zip <span class="size">· 42 Ko</span></a>
-      <p class="btn-note">Depuis le dépôt GitHub — plus de lien SharePoint, il ne sera plus mis à jour. Les versions précédentes et les notes de version sont sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a>.</p>
+      <a class="btn" href="https://github.com/yale-dynapps/chromesh/releases/download/0.4.0/chromesh-0.4.0.zip" target="_blank" rel="noopener">Télécharger chromesh-0.4.0.zip <span class="size">· 43 Ko</span></a>
+      <p class="note">Depuis le dépôt GitHub. Les versions précédentes sont sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a>.</p>
     </div>
-    <div class="meta">
-      <div class="item"><div class="lbl">Version</div><div class="val">0.3.1</div></div>
-      <div class="item"><div class="lbl">Navigateurs</div><div class="val">Edge, Chrome</div></div>
-      <div class="item"><div class="lbl">Mise à jour</div><div class="val">04/11/2026</div></div>
-      <div class="item"><div class="lbl">Auteurs</div><div class="val">Yann Leroux, Mickael Delord</div></div>
+    <div class="facts">
+      <div><div class="k">Version</div><div class="v">0.4.0</div></div>
+      <div><div class="k">Mise à jour</div><div class="v">04/11/2026</div></div>
+      <div><div class="k">Navigateurs</div><div class="v">Edge, Chrome</div></div>
+      <div><div class="k">Permissions</div><div class="v">4, aucune donnée sortante</div></div>
+      <div><div class="k">Auteurs</div><div class="v">Yann Leroux, Mickael Delord</div></div>
     </div>
   </section>
 
   <section id="probleme">
     <div class="wrap">
-      <div class="eyebrow-s reveal">Le problème</div>
+      <span class="eyebrow reveal">Le problème</span>
       <h2 class="reveal">Une phrase <span class="accent">enterrée</span> dans l'historique</h2>
-      <div class="prose reveal">
-        <p>Odoo.sh annonce la fin de vie d'un build staging par une ligne dans l'historique de la branche :</p>
+      <p class="lede reveal">Odoo.sh annonce la fin de vie d'un build staging par une ligne dans l'historique de la branche :</p>
+      <blockquote class="pull reveal">« This staging build will be deleted on 18 October 2026. »</blockquote>
+      <div class="reveal">
+        <p class="lede">Trois défauts. La phrase n'existe que sur la page de cette branche, donc personne ne la voit en passant. La date est en jours calendaires. Et une suppression annoncée un lundi doit en réalité être traitée le vendredi précédent.</p>
       </div>
-      <div class="pull reveal">« This staging build will be deleted on 18 October 2026. »</div>
-      <div class="prose reveal">
-        <p>Trois défauts. La phrase n'existe que sur la page de cette branche, donc personne ne la voit en passant. La date est en jours calendaires. Et une suppression annoncée un lundi doit en réalité être traitée le vendredi précédent.</p>
-        <p>Chromesh ne lit pas cette phrase. Il interroge l'API d'Odoo.sh, récupère la date brute, et la recompte en jours ouvrés.</p>
-      </div>
-      <h3 class="reveal">Le calcul</h3>
-      <ul class="b-list reveal">
-        <li><strong>Dernier jour utile</strong> = date de suppression moins un jour, ramenée au jour ouvré précédent.</li>
-        <li><strong>Week-ends toujours exclus.</strong> Jours fériés FR, BE ou LU selon ton réglage.</li>
-        <li><strong>Quand l'échéance recule</strong> à cause d'un week-end ou d'un férié, le message te le dit.</li>
-      </ul>
+      <p class="lede reveal">Chromesh ne lit pas cette phrase. Il interroge l'API d'Odoo.sh, récupère la date brute, et la recompte en jours ouvrés.</p>
     </div>
   </section>
 
   <section id="affichage" class="on-dark">
     <div class="wrap">
-      <div class="eyebrow-s reveal">Ce que tu vois</div>
-      <h2 class="reveal">Quatre endroits, <span class="accent" style="color:var(--tangerine)">une seule information</span></h2>
-      <p class="section-lede reveal">Rien à ouvrir, rien à cliquer : l'échéance apparaît là où tu travailles déjà.</p>
+      <span class="eyebrow reveal">Ce que tu vois</span>
+      <h2 class="reveal">Six endroits, <span class="accent">une seule information</span></h2>
+      <p class="lede reveal">Rien à ouvrir, rien à cliquer : l'échéance apparaît là où tu passes déjà.</p>
       <ul class="b-list reveal">
         <li><strong>Liste des branches.</strong> Une pastille sur chaque branche staging, colorée selon l'urgence. Un bouton <code>⊘</code> au survol pour exclure la branche ou le projet entier.</li>
-        <li><strong>Page de la branche.</strong> Un bandeau avec l'échéance réelle et un bouton <code>Rebuild</code>.</li>
-        <li><strong>Liste des projets</strong> (<code>/project</code>). La tuile ou la ligne prend la couleur de la pire branche staging du projet, détail en infobulle. Trois boutons au-dessus de la liste filtrent sur « À surveiller » ou « Critiques ».</li>
-        <li><strong>Icône de la barre d'outils.</strong> Un badge rouge compte les branches critiques ou expirées.</li>
-        <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence, avec les boutons <code>⊘ branche</code> et <code>⊘ projet</code>.</li>
+        <li><strong>Page de la branche.</strong> Un bandeau avec l'échéance réelle et un bouton <code>Rebuild</code> qui déclenche celui d'Odoo.sh.</li>
+        <li><strong>En-tête du bloc Staging.</strong> Le nombre de branches critiques ou expirées du projet ouvert.</li>
+        <li><strong>Liste des projets.</strong> La tuile ou la ligne prend la couleur du projet le plus urgent, détail en infobulle. Trois boutons filtrent : Tous, À surveiller, Critiques.</li>
+        <li><strong>Icône de la barre d'outils.</strong> Un badge rouge compte les branches critiques ou expirées, tous projets confondus.</li>
+        <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence, avec recherche, filtre par niveau et boutons d'exclusion.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="calcul" class="alt">
+    <div class="wrap">
+      <span class="eyebrow reveal">Le calcul</span>
+      <h2 class="reveal">Des jours <span class="accent">ouvrés</span>, pas des jours calendaires</h2>
+      <ul class="b-list reveal">
+        <li><strong>Dernier jour utile</strong> = date de suppression moins un jour, ramenée au jour ouvré précédent.</li>
+        <li><strong>Week-ends toujours exclus.</strong> Jours fériés FR, BE ou LU selon ton réglage — Pâques est calculée, aucun appel réseau.</li>
+        <li><strong>Quand l'échéance recule</strong> à cause d'un week-end ou d'un férié, le message te le dit.</li>
       </ul>
       <h3 class="reveal">Exemple — suppression annoncée le dimanche 18/10</h3>
-      <div class="table-scroll reveal">
-        <table class="data">
+      <div class="scroll reveal">
+        <table>
+          <caption class="eyebrow" style="padding:.6rem .9rem;text-align:left">Évolution de la pastille, jour par jour</caption>
           <thead><tr><th scope="col">Jour</th><th scope="col">Pastille</th><th scope="col">Ce que ça veut dire</th></tr></thead>
           <tbody>
-            <tr><td>mar. 13/10</td><td><span class="pill pill-warn">J-3</span></td><td>Trois jours ouvrés avant le dernier moment utile.</td></tr>
-            <tr><td>jeu. 15/10</td><td><span class="pill pill-crit">J-1</span></td><td>Demain, c'est la dernière chance.</td></tr>
-            <tr><td>ven. 16/10</td><td><span class="pill pill-crit">AUJOURD'HUI</span></td><td>Dernier jour ouvré avant la suppression du week-end.</td></tr>
-            <tr><td>sam. 17/10</td><td><span class="pill pill-gone">EXPIRÉ</span></td><td>Trop tard, le build part.</td></tr>
+            <tr><td class="num">mar. 13/10</td><td><span class="pill p-warn">J-3</span></td><td>Trois jours ouvrés avant le dernier moment utile.</td></tr>
+            <tr><td class="num">jeu. 15/10</td><td><span class="pill p-crit">J-1</span></td><td>Demain, c'est la dernière chance.</td></tr>
+            <tr><td class="num">ven. 16/10</td><td><span class="pill p-crit">AUJOURD'HUI</span></td><td>Dernier jour ouvré avant la suppression du week-end.</td></tr>
+            <tr><td class="num">sam. 17/10</td><td><span class="pill p-gone">EXPIRÉ</span></td><td>Trop tard, le build part.</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="section-lede reveal">Au-delà de cinq jours ouvrés, la pastille est verte : <span class="pill pill-ok">J-8</span></p>
+      <p class="lede reveal">Au-delà de cinq jours ouvrés, la pastille est verte : <span class="pill p-ok">J-8</span></p>
     </div>
   </section>
 
   <section id="installer">
     <div class="wrap">
-      <div class="eyebrow-s reveal">Installer</div>
+      <span class="eyebrow reveal">Installer</span>
       <h2 class="reveal">Cinq étapes, <span class="accent">une seule fois</span></h2>
-      <p class="section-lede reveal">L'extension n'est pas publiée sur le store : elle se charge depuis un dossier, en mode développeur.</p>
+      <p class="lede reveal">L'extension n'est publiée sur aucun store : elle se charge depuis un dossier, en mode développeur.</p>
       <ol class="steps reveal">
-        <li>
-          <div class="body">
-            <strong>Décompresse l'archive dans un dossier permanent.</strong>
-            <p>Par exemple <code>C:\Outils\chromesh</code>. Évite le dossier Téléchargements : le navigateur recharge l'extension depuis ce dossier à chaque démarrage, et le supprimer la désinstalle.</p>
-          </div>
-        </li>
-        <li>
-          <div class="body">
-            <strong>Ouvre la page des extensions.</strong>
-            <p><code>edge://extensions</code> dans Edge, <code>chrome://extensions</code> dans Chrome.</p>
-          </div>
-        </li>
-        <li>
-          <div class="body">
-            <strong>Active le mode développeur.</strong>
-            <p>L'interrupteur se trouve en bas à gauche de la page dans Edge, en haut à droite dans Chrome.</p>
-          </div>
-        </li>
-        <li>
-          <div class="body">
-            <strong>Charge l'extension non empaquetée.</strong>
-            <p>Clique le bouton, puis sélectionne le dossier décompressé — celui qui contient <code>manifest.json</code>. N'entre pas dans <code>src</code>.</p>
-          </div>
-        </li>
-        <li>
-          <div class="body">
-            <strong>Ouvre un projet Odoo.sh.</strong>
-            <p>Les pastilles apparaissent sur les branches staging. Clique l'icône Chromesh dans la barre d'outils pour le tableau de bord multi-projets.</p>
-          </div>
-        </li>
+        <li><div class="body"><strong>Décompresse l'archive dans un dossier permanent.</strong>
+          <p>Par exemple <code>C:\Outils\chromesh</code>. Évite Téléchargements : le navigateur recharge l'extension depuis ce dossier à chaque démarrage, et le supprimer la désinstalle.</p></div></li>
+        <li><div class="body"><strong>Ouvre la page des extensions.</strong>
+          <p><code>edge://extensions</code> dans Edge, <code>chrome://extensions</code> dans Chrome.</p></div></li>
+        <li><div class="body"><strong>Active le mode développeur.</strong>
+          <p>En bas à gauche dans Edge, en haut à droite dans Chrome.</p></div></li>
+        <li><div class="body"><strong>Charge l'extension non empaquetée.</strong>
+          <p>Sélectionne le dossier décompressé — celui qui contient <code>manifest.json</code>. N'entre pas dans <code>src</code>.</p></div></li>
+        <li><div class="body"><strong>Ouvre un projet Odoo.sh.</strong>
+          <p>Les pastilles apparaissent sur les branches staging. Clique l'icône Chromesh pour le tableau de bord multi-projets.</p></div></li>
       </ol>
       <div class="callout reveal">
-        <div class="t">Message au démarrage</div>
+        <span class="t">Mettre à jour</span>
+        <p>Décompresse la nouvelle archive <strong>par-dessus</strong> ton dossier existant, puis clique ↻ sur la carte de l'extension. Tes réglages et tes exclusions sont conservés.</p>
+      </div>
+      <div class="callout reveal">
+        <span class="t">Message au démarrage</span>
         <p>Edge affichera « Désactiver les extensions en mode développeur » à chaque lancement. C'est le régime normal d'une extension non publiée. Ferme le message : l'extension reste active.</p>
       </div>
     </div>
   </section>
 
-  <section id="reglages" style="background:var(--off-white)">
+  <section id="reglages" class="alt">
     <div class="wrap">
-      <div class="eyebrow-s reveal">Réglages</div>
+      <span class="eyebrow reveal">Réglages</span>
       <h2 class="reveal">Clic droit sur l'icône, puis <span class="accent">Options</span></h2>
-      <ul class="b-list reveal">
-        <li><strong>Pays des jours fériés.</strong> France, Belgique ou Luxembourg. Pâques est calculée, aucun appel réseau.</li>
-        <li><strong>Seuils d'alerte.</strong> À partir de combien de jours ouvrés la pastille passe à l'orange, puis au rouge.</li>
-        <li><strong>Notifications.</strong> Activation, et heure à partir de laquelle elles peuvent tomber. Une par branche et par jour, jamais plus.</li>
-        <li><strong>Balayage multi-projets.</strong> À désactiver si tu as beaucoup de projets et que tu veux limiter les requêtes.</li>
-      </ul>
-    </div>
-  </section>
-
-  <section id="nouveautes" style="background:var(--off-white)">
-    <div class="wrap">
-      <div class="eyebrow-s reveal">Nouveautés</div>
-      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.3.1</span></h2>
-      <p class="section-lede reveal">Depuis la première version : la vue d'ensemble des projets, les exclusions au clic, un canal de distribution stable, des réglages d'affichage séparés, le filtre du popup et celui de la liste des projets.</p>
-      <ul class="b-list reveal">
-        <li><strong>Le ZIP est sur GitHub.</strong> Chaque version publie son archive sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a> du dépôt. Le lien SharePoint n'est plus alimenté : va chercher la dernière version là-bas.</li>
-        <li><strong>La page <code>/project</code> est couverte</strong> (0.2.0, 0.2.1). Tu vois quels projets sont en souffrance sans en ouvrir aucun.</li>
-        <li><strong>Exclure une branche ou un projet en deux clics</strong> (0.2.0, 0.2.2). Bouton <code>⊘</code> au survol d'une branche, et dans le popup. Le menu propose « Exclure la branche » ou « Exclure le projet » ; un projet exclu n'est même plus interrogé. Le retrait reste manuel, depuis les options.</li>
-        <li><strong>Le badge se recalcule tout de suite</strong> (0.2.2) après une exclusion, sans attendre l'alarme horaire.</li>
-        <li><strong>Deux correctifs d'affichage</strong> (0.2.3). Rien n'apparaissait quand Odoo.sh redirige vers <code>/project?debug=1</code>. Et sur la page d'un projet, les boutons <code>⊘</code> et le compteur Staging manquaient tant que tu ne touchais pas à la page.</li>
-        <li><strong>Deux réglages d'affichage séparés</strong> (0.2.4). « Bandeau sur la page de la branche » ne commande plus la vue <code>/project</code> : celle-ci a sa propre case, « Bandeau et pastille dans la liste des projets », active par défaut.</li>
-        <li><strong>La liste des projets se filtre</strong> (0.3.1). Trois boutons au-dessus de la liste, avec leur compteur : « Tous », « À surveiller » et « Critiques ». Le filtre masque la tuile en kanban et la ligne en vue liste, repart à « Tous » au rechargement et ne touche pas aux exclusions.</li>
-        <li><strong>Affichage <code>/project</code> allégé</strong> (0.3.1). Plus de bandeau ni de pastille ajoutés : la tuile ou la ligne prend simplement la couleur du niveau le plus urgent du projet, avec un liseré de 3 px. Le détail passe par l'infobulle. Le réglage s'appelle maintenant « Colorer les projets selon leur urgence dans la liste des projets ».</li>
-        <li><strong>Le popup se filtre</strong> (0.3.0). Une barre de recherche par projet ou par branche, insensible à la casse et aux accents, et un bouton par niveau avec son compteur. Le filtre repart à zéro à chaque ouverture et ne touche pas aux exclusions. Les paramètres affichent désormais version, navigateur, mode d'installation et ID de l'extension.</li>
-      </ul>
-      <div class="callout reveal">
-        <div class="t">Mise à jour depuis une version antérieure</div>
-        <p>Décompresse la nouvelle archive <strong>par-dessus</strong> ton dossier existant, puis clique ↻ sur la carte de l'extension dans <code>edge://extensions</code>. Tes réglages et tes exclusions sont conservés.</p>
+      <div class="scroll reveal">
+        <table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Défaut</th><th scope="col">Effet</th></tr></thead>
+          <tbody>
+            <tr><td>Jours fériés</td><td class="num">France</td><td>FR, BE, LU ou aucun. Pâques calculée localement.</td></tr>
+            <tr><td>Critique (rouge)</td><td class="num">2 j</td><td>Seuil en jours ouvrés, borné de 0 à 30.</td></tr>
+            <tr><td>Avertissement (orange)</td><td class="num">5 j</td><td>Borné de 0 à 60, jamais sous le seuil critique.</td></tr>
+            <tr><td>Notification système</td><td class="num">activée</td><td>Une par branche et par jour, pas avant l'heure choisie.</td></tr>
+            <tr><td>Affichage</td><td class="num">3 cases</td><td>Pastilles, bandeau de branche et couleur des projets, indépendants.</td></tr>
+            <tr><td>Balayage multi-projets</td><td class="num">activé</td><td>À couper si ton portefeuille est large et que tu veux limiter les requêtes.</td></tr>
+            <tr><td>Rafraîchissement</td><td class="num">6 h</td><td>Borné de 1 à 72 h.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="reveal">Exclure une branche ou un projet</h3>
+      <p class="lede reveal">Les boutons <code>⊘</code> de la page et du popup écrivent dans une liste unique, modifiable dans les options. Trois formes acceptées, la casse est ignorée :</p>
+      <div class="scroll reveal">
+        <table>
+          <thead><tr><th scope="col">Règle</th><th scope="col">Effet</th></tr></thead>
+          <tbody>
+            <tr><td><code>projet::branche</code></td><td>Exclut cette branche.</td></tr>
+            <tr><td><code>projet::*</code></td><td>Exclut le projet entier, qui n'est même plus interrogé.</td></tr>
+            <tr><td><code>projet</code></td><td>Identique à <code>projet::*</code>.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 
-  <section id="limites">
+  <section id="donnees" class="on-dark">
     <div class="wrap">
-      <div class="eyebrow-s reveal">Données et limites</div>
-      <h2 class="reveal">Ce qu'elle fait, et ce qu'elle <span class="accent">ne fait pas</span></h2>
+      <span class="eyebrow reveal">Données</span>
+      <h2 class="reveal">Où elle regarde, et <span class="accent">où elle n'envoie rien</span></h2>
       <ul class="b-list reveal">
-        <li><strong>Elle ne lit que <code>www.odoo.sh</code>.</strong> Aucune autre page, aucun envoi vers l'extérieur.</li>
+        <li><strong>Elle ne lit que <code>www.odoo.sh</code>.</strong> Aucune autre page, aucun envoi vers l'extérieur, aucune télémétrie.</li>
         <li><strong>Elle utilise ta session Odoo.sh.</strong> Tu ne vois que les projets auxquels tu as déjà accès.</li>
-        <li><strong>Tout reste local.</strong> Les échéances sont mises en cache dans le stockage du navigateur ; les réglages se synchronisent avec ton profil.</li>
-        <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour en arrière-plan.</strong> Sans onglet, le popup affiche « données figées » plutôt que d'afficher une date périmée en silence.</li>
+        <li><strong>Tout reste local.</strong> Les échéances sont mises en cache dans le stockage du navigateur ; seuls les réglages se synchronisent avec ton profil.</li>
+        <li><strong>Quatre permissions</strong> : <code>storage</code>, <code>alarms</code>, <code>notifications</code>, et l'accès à <code>https://www.odoo.sh/*</code>. Rien d'autre.</li>
+        <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour.</strong> Sans onglet, le popup affiche « données figées » plutôt qu'une date périmée en silence.</li>
       </ul>
-      <div class="callout reveal">
-        <div class="t">Version 0.3.1 — ce qui n'est pas vérifié</div>
-        <p>Les pastilles, les bandeaux et le compteur ont tourné dans Chrome le 03/11/2026. Le filtre du popup a été éprouvé sur une page servie en local avec des données fictives, jamais dans le popup réel : Chrome refuse les URL <code>chrome-extension://</code> aux outils d'automatisation. <strong>Rien de la 0.3.1 n'a été chargé dans un navigateur</strong> : ni la barre de filtre des projets, ni le masquage des tuiles, ni le liseré de couleur. N'ont pas été éprouvés non plus : le clic dans le menu <code>⊘</code>, la vue liste de <code>/project</code>, Edge, les notifications système, et le repli du worker vers un onglet quand la collecte directe est bloquée. Dis-moi si tu tombes dessus.</p>
+    </div>
+  </section>
+
+  <section id="fiabilite">
+    <div class="wrap">
+      <span class="eyebrow reveal">Fiabilité</span>
+      <h2 class="reveal">Ce qui est testé, et ce qui <span class="accent">ne l'est pas</span></h2>
+      <p class="lede reveal">La 0.4.0 est née d'une revue de code complète. Le calcul des échéances, le stockage et les filtres sont couverts par 68 assertions automatisées, exécutées hors navigateur à chaque modification.</p>
+      <div class="scroll reveal">
+        <table>
+          <thead><tr><th scope="col">Domaine</th><th scope="col">Couverture</th></tr></thead>
+          <tbody>
+            <tr><td>Jours ouvrés, fériés, Pâques</td><td>Tests automatisés</td></tr>
+            <tr><td>Niveaux d'urgence et libellés</td><td>Tests automatisés</td></tr>
+            <tr><td>Stockage, exclusions, purge du cache</td><td>Tests automatisés</td></tr>
+            <tr><td>Filtre du popup</td><td>Tests automatisés</td></tr>
+            <tr><td>Injection dans les pages Odoo.sh</td><td>Contrôle manuel uniquement</td></tr>
+            <tr><td>Service worker, notifications système</td><td>Jamais déclenché en conditions réelles</td></tr>
+          </tbody>
+        </table>
       </div>
+      <div class="callout warn reveal">
+        <span class="t">Version 0.4.0 — non vérifié dans un navigateur</span>
+        <p>Les correctifs de la 0.4.0 — purge du cache, jeton de balayage partagé entre onglets, clic sur notification — n'ont pas été éprouvés dans Edge ni dans Chrome. Les pastilles, bandeaux et compteurs ont tourné dans Chrome le 03/11/2026, sur les versions antérieures. Signale-moi tout écart.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="versions" class="alt">
+    <div class="wrap">
+      <span class="eyebrow reveal">Versions</span>
+      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.4.0</span></h2>
+      <p class="lede reveal">L'historique complet, avec ce qui a été vérifié à chaque fois, est dans le <a href="https://github.com/yale-dynapps/chromesh/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG</a>.</p>
+      <ul class="b-list reveal">
+        <li><strong>Robustesse et tests</strong> (0.4.0). Une branche supprimée sur Odoo.sh sort maintenant du cache au lieu d'y vieillir en « expiré ». Deux onglets ouverts ne balaient plus le portefeuille en double. Un échec de collecte ne bloque plus la reprise pendant six heures. Premiers tests automatisés : 68 assertions.</li>
+        <li><strong>Liste des projets allégée et filtrable</strong> (0.3.1). Plus de bandeau ajouté : la tuile prend la couleur du projet le plus urgent, et trois boutons filtrent la liste.</li>
+        <li><strong>Le popup se filtre</strong> (0.3.0). Recherche par projet ou branche, insensible à la casse et aux accents, et un bouton par niveau avec son compteur.</li>
+        <li><strong>Deux réglages d'affichage séparés</strong> (0.2.4). La vue projet a sa propre case, indépendante du bandeau de branche.</li>
+        <li><strong>Exclure en deux clics</strong> (0.2.0 à 0.2.2). Bouton <code>⊘</code> au survol d'une branche et dans le popup ; un projet exclu n'est même plus interrogé.</li>
+        <li><strong>Le ZIP est sur GitHub.</strong> Chaque version publie son archive sur la page des releases. Le lien SharePoint n'est plus alimenté.</li>
+      </ul>
     </div>
   </section>
 
   <section id="support" class="on-dark">
     <div class="wrap">
-      <div class="eyebrow-s reveal">Un souci ?</div>
-      <h2 class="reveal">Ce qu'il me faut pour <span class="accent" style="color:var(--tangerine)">corriger</span></h2>
-      <p class="section-lede reveal">Trois endroits où regarder, dans cet ordre.</p>
+      <span class="eyebrow reveal">Un souci ?</span>
+      <h2 class="reveal">Trois endroits où regarder, <span class="accent">dans cet ordre</span></h2>
       <ul class="b-list reveal">
-        <li><strong>La console de la page.</strong> <code>F12</code> sur la page Odoo.sh, onglet Console, lignes préfixées <code>[chromesh]</code>.</li>
+        <li><strong>La console de la page.</strong> <kbd>F12</kbd> sur la page Odoo.sh, onglet Console, lignes préfixées <code>[chromesh]</code>.</li>
         <li><strong>La console du service worker.</strong> Sur <code>edge://extensions</code>, carte Chromesh, lien <code>service worker</code>.</li>
         <li><strong>La dernière ligne du popup.</strong> Elle porte l'erreur, ou la mention « données figées ».</li>
       </ul>
-      <div class="prose reveal">
-        <p>Envoie-moi ce que tu y vois, avec le nom du projet concerné. Pour recharger après un correctif : bouton ↻ sur la carte de l'extension, puis <code>F5</code> sur l'onglet Odoo.sh.</p>
-      </div>
+      <p class="lede reveal">Envoie ce que tu y vois, avec le nom du projet concerné. Pour recharger après un correctif : bouton ↻ sur la carte de l'extension, puis <kbd>F5</kbd> sur l'onglet Odoo.sh.</p>
     </div>
   </section>
 
-  <div class="footer-grad"></div>
+  <div class="grad-line"></div>
   <footer>
-    <div class="left"><strong>Dynapps</strong> · Chromesh v0.3.1 · Usage interne</div>
+    <div><strong>Dynapps</strong> · Chromesh v0.4.0 · Usage interne</div>
     <div>Yann Leroux, Mickael Delord · 4 novembre 2026</div>
   </footer>
-
 </div>
 
 <script>
-const obs = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+const rail = document.getElementById('rail');
+document.getElementById('menu').addEventListener('click', (event) => {
+  const open = rail.classList.toggle('open');
+  event.currentTarget.setAttribute('aria-expanded', String(open));
+});
+
+const reveal = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) { entry.target.classList.add('visible'); reveal.unobserve(entry.target); }
+  });
 }, { threshold: .12 });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+document.querySelectorAll('.reveal').forEach((el) => reveal.observe(el));
 
-const navLinks = [...document.querySelectorAll('.sidebar nav a')];
-const setActive = (id) => navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === id));
+const links = [...document.querySelectorAll('.rail nav a')];
 const spy = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      links.forEach((a) => a.classList.toggle('active', a.dataset.target === entry.target.id));
+    }
+  });
 }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
-document.querySelectorAll('section[id]').forEach(s => spy.observe(s));
+document.querySelectorAll('section[id]').forEach((s) => spy.observe(s));
 
-navLinks.forEach(a => a.addEventListener('click', () => {
-  if (window.innerWidth <= 760) document.querySelector('.sidebar').classList.remove('open');
+links.forEach((a) => a.addEventListener('click', () => {
+  if (window.innerWidth <= 880) { rail.classList.remove('open'); document.getElementById('menu').setAttribute('aria-expanded', 'false'); }
 }));
 </script>

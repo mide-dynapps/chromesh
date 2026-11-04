@@ -48,10 +48,13 @@ publiés). Révoquer le lien ou le secret concerné. Ne pas réécrire l'histori
 - Pas d'étape de build. Ce sont des scripts classiques qui partagent le
   namespace global `CHROMESH` (`workdays`, `parse`, `urgency`, `store`, `api`).
   Le service worker les charge par `importScripts`.
-- Un nouveau fichier de `src/common/` doit être ajouté à trois endroits :
-  `manifest.json` (`content_scripts`), `importScripts` dans
-  `src/background/service-worker.js`, et les `<script>` de `popup.html` et
-  `options.html`.
+- Un nouveau fichier de `src/common/` doit être déclaré dans chaque contexte
+  qui s'en sert, et nulle part ailleurs : `manifest.json` (`content_scripts`),
+  `importScripts` dans `src/background/service-worker.js`, les `<script>` de
+  `popup.html` et `options.html`. Aujourd'hui le worker se passe de `parse.js`,
+  le popup de `parse.js` et `api.js`, les options de tout sauf `settings.js`.
+  Respecter l'ordre des dépendances : `urgency.js` lit `ns.workdays` au
+  chargement.
 - Classes CSS et éléments injectés : préfixe `csh-`, pour cohabiter avec Odoo
   Toolbox. Le `MutationObserver` du content script ignore les nœuds dont la
   classe contient `csh-` : un élément injecté sans ce préfixe relance le rendu
@@ -116,10 +119,12 @@ publiés). Révoquer le lien ou le secret concerné. Ne pas réécrire l'histori
 
 ## Vérification
 
-- Hors navigateur, contrôler la syntaxe avec
+- Hors navigateur : `node tests/run.js` d'abord, puis
   `for f in $(find src -name "*.js"); do node --check "$f"; done`.
-- On teste la logique pure (`workdays`, `urgency`, `store`) sous Node en
-  simulant `chrome.storage` par un objet.
+- Les tests vivent dans `tests/`, sans dépendance : `tests/harness.js` simule
+  `chrome.storage` en mémoire et évalue les IIFE de `src/` par `vm`. Tout
+  changement de `workdays`, `urgency`, `settings` ou `filter` doit venir avec
+  son test.
 - Rien ne remplace un chargement dans Edge (`edge://extensions`, extension non
   empaquetée). Le dire explicitement dans le message de commit quand ce
   chargement n'a pas été fait.

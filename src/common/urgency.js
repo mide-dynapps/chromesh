@@ -36,6 +36,10 @@
         const deletion = wd.startOfDay(deletionDate);
         const lastSafeDay = wd.previousWorkday(wd.addDays(deletion, -1), options);
         const workdaysLeft = wd.countWorkdays(today, lastSafeDay, options);
+        if (workdaysLeft === null) {
+            // Date trop lointaine pour être comptée : on ne devine pas.
+            return { level: LEVELS.UNKNOWN, deletionDate: deletion };
+        }
         const calendarDaysLeft = wd.countCalendarDays(today, deletion);
         const shiftedByWeekend = wd.countCalendarDays(lastSafeDay, wd.addDays(deletion, -1)) > 0;
 

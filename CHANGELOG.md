@@ -6,6 +6,58 @@ en haut.
 Statut de test : aucune version n'a encore été validée dans un navigateur
 au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 
+## 0.4.0 — 04/11/2026
+
+Revue de code complète : correction de trois défauts qui faussaient les
+données affichées, et premiers tests automatisés.
+
+### Corrigé
+- Le cache ne retenait jamais la disparition d'une branche. Une branche
+  supprimée sur Odoo.sh y restait, basculait en « expiré » au fil des jours et
+  comptait indéfiniment dans le badge. Chaque collecte aligne maintenant le
+  cache du projet sur ce que l'API renvoie (`store.pruneProject`).
+- Deux contextes qui écrivaient en même temps — service worker et onglet, ou
+  deux onglets — se perdaient des branches : `chrome.storage` n'offre pas de
+  compare-and-swap. Toutes les écritures passent par une file.
+- Un échec de collecte dans la page bloquait toute reprise pendant
+  `refreshHours`, six heures par défaut : l'horodatage était posé avant
+  l'appel. Il est désormais rendu en cas d'erreur (`store.releaseScan`).
+- Deux onglets Odoo.sh ouverts lançaient deux balayages complets en parallèle.
+  Un jeton partagé dans `chrome.storage.local` n'en autorise qu'un.
+- Au-delà de 4 000 jours d'écart, le décompte de jours ouvrés s'arrêtait et
+  renvoyait un total tronqué, donc un `J-xxxx` faux. Il renvoie `null`, et le
+  niveau devient « inconnu ».
+- Les réglages numériques n'étaient pas bornés : un champ vide valait `0`, et
+  `warningDays` pouvait passer sous `criticalDays`, rendant le niveau orange
+  inatteignable. Les valeurs sont bornées et les seuils réordonnés.
+- Une liste d'exclusions dépassant les 8 192 octets de `chrome.storage.sync`
+  échouait en silence. L'erreur est maintenant affichée dans les paramètres.
+- Un `:` dans un nom de projet ou de branche cassait l'ouverture de la branche
+  au clic sur une notification. Les deux segments sont encodés.
+- Vue `/project` : décocher « Colorer les projets selon leur urgence » laissait
+  la barre de filtre en place. Le réglage retire désormais tout ce que
+  l'extension ajoute à cette vue.
+
+### Ajouté
+- Tests de la logique pure sous Node, sans dépendance : `node tests/run.js`.
+  68 assertions sur les jours ouvrés, les niveaux d'urgence, le stockage et le
+  filtre du popup. `chrome.storage` est simulé en mémoire.
+- `ApiError` porte un `code` applicatif (`non-json`, `odoo-error`,
+  `empty-projects`, `slug-not-found`) en plus du statut HTTP.
+
+### Modifié
+- Le service worker ne charge plus `parse.js`, le popup ne charge plus
+  `parse.js` ni `api.js`, la page des paramètres ne charge plus que
+  `settings.js` : ces fichiers n'y servaient pas.
+- `README.md` réécrit.
+
+### Vérifié
+- `node tests/run.js` : 68 assertions, 0 échec.
+- `node --check` sur tous les fichiers de `src/` et `tests/`.
+- Non chargée dans Edge ni Chrome : la purge du cache, le jeton de balayage
+  partagé et le clic sur notification n'ont pas été éprouvés dans le
+  navigateur.
+
 ## 0.3.1 — 04/11/2026
 
 ### Ajouté
