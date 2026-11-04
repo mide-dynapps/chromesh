@@ -186,7 +186,7 @@ footer .left strong{color:var(--tw);font-weight:500}
   <div class="sidebar-meta">
     <div class="eyebrow">Outil interne</div>
     <div class="doc-title">Chromesh</div>
-    <div class="doc-sub">Extension Edge / Chrome · v0.3.0</div>
+    <div class="doc-sub">Extension Edge / Chrome · v0.3.1</div>
   </div>
   <nav>
     <a href="#intro" data-target="intro">Ce que c'est</a>
@@ -211,13 +211,13 @@ footer .left strong{color:var(--tw);font-weight:500}
     <h1>Ne perds plus un build staging <span class="accent">par inattention</span></h1>
     <p class="lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh directement sur les branches, comptée en jours ouvrés. Installation en cinq minutes, pas de compte à créer.</p>
     <div class="cta">
-      <a class="btn" id="dl" href="https://github.com/yale-dynapps/chromesh/releases/download/0.3.0/chromesh-0.3.0.zip" target="_blank" rel="noopener">Télécharger chromesh-0.3.0.zip <span class="size">· 42 Ko</span></a>
+      <a class="btn" id="dl" href="https://github.com/yale-dynapps/chromesh/releases/download/0.3.1/chromesh-0.3.1.zip" target="_blank" rel="noopener">Télécharger chromesh-0.3.1.zip <span class="size">· 42 Ko</span></a>
       <p class="btn-note">Depuis le dépôt GitHub — plus de lien SharePoint, il ne sera plus mis à jour. Les versions précédentes et les notes de version sont sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a>.</p>
     </div>
     <div class="meta">
-      <div class="item"><div class="lbl">Version</div><div class="val">0.3.0</div></div>
+      <div class="item"><div class="lbl">Version</div><div class="val">0.3.1</div></div>
       <div class="item"><div class="lbl">Navigateurs</div><div class="val">Edge, Chrome</div></div>
-      <div class="item"><div class="lbl">Mise à jour</div><div class="val">03/11/2026</div></div>
+      <div class="item"><div class="lbl">Mise à jour</div><div class="val">04/11/2026</div></div>
       <div class="item"><div class="lbl">Auteurs</div><div class="val">Yann Leroux, Mickael Delord</div></div>
     </div>
   </section>
@@ -251,7 +251,7 @@ footer .left strong{color:var(--tw);font-weight:500}
       <ul class="b-list reveal">
         <li><strong>Liste des branches.</strong> Une pastille sur chaque branche staging, colorée selon l'urgence. Un bouton <code>⊘</code> au survol pour exclure la branche ou le projet entier.</li>
         <li><strong>Page de la branche.</strong> Un bandeau avec l'échéance réelle et un bouton <code>Rebuild</code>.</li>
-        <li><strong>Liste des projets</strong> (<code>/project</code>). Un bandeau en kanban, une pastille dans la cellule du nom en vue liste, au niveau de la pire branche staging du projet.</li>
+        <li><strong>Liste des projets</strong> (<code>/project</code>). La tuile ou la ligne prend la couleur de la pire branche staging du projet, détail en infobulle. Trois boutons au-dessus de la liste filtrent sur « À surveiller » ou « Critiques ».</li>
         <li><strong>Icône de la barre d'outils.</strong> Un badge rouge compte les branches critiques ou expirées.</li>
         <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence, avec les boutons <code>⊘ branche</code> et <code>⊘ projet</code>.</li>
       </ul>
@@ -331,15 +331,17 @@ footer .left strong{color:var(--tw);font-weight:500}
   <section id="nouveautes" style="background:var(--off-white)">
     <div class="wrap">
       <div class="eyebrow-s reveal">Nouveautés</div>
-      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.3.0</span></h2>
-      <p class="section-lede reveal">Depuis la première version : la vue d'ensemble des projets, les exclusions au clic, un canal de distribution stable, des réglages d'affichage séparés et le filtre du popup.</p>
+      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.3.1</span></h2>
+      <p class="section-lede reveal">Depuis la première version : la vue d'ensemble des projets, les exclusions au clic, un canal de distribution stable, des réglages d'affichage séparés, le filtre du popup et celui de la liste des projets.</p>
       <ul class="b-list reveal">
         <li><strong>Le ZIP est sur GitHub.</strong> Chaque version publie son archive sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a> du dépôt. Le lien SharePoint n'est plus alimenté : va chercher la dernière version là-bas.</li>
-        <li><strong>La page <code>/project</code> est couverte</strong> (0.2.0, 0.2.1). Bandeau sur chaque carte en kanban, pastille dans la cellule du nom en vue liste. Tu vois quels projets sont en souffrance sans ouvrir aucun d'eux.</li>
+        <li><strong>La page <code>/project</code> est couverte</strong> (0.2.0, 0.2.1). Tu vois quels projets sont en souffrance sans en ouvrir aucun.</li>
         <li><strong>Exclure une branche ou un projet en deux clics</strong> (0.2.0, 0.2.2). Bouton <code>⊘</code> au survol d'une branche, et dans le popup. Le menu propose « Exclure la branche » ou « Exclure le projet » ; un projet exclu n'est même plus interrogé. Le retrait reste manuel, depuis les options.</li>
         <li><strong>Le badge se recalcule tout de suite</strong> (0.2.2) après une exclusion, sans attendre l'alarme horaire.</li>
         <li><strong>Deux correctifs d'affichage</strong> (0.2.3). Rien n'apparaissait quand Odoo.sh redirige vers <code>/project?debug=1</code>. Et sur la page d'un projet, les boutons <code>⊘</code> et le compteur Staging manquaient tant que tu ne touchais pas à la page.</li>
         <li><strong>Deux réglages d'affichage séparés</strong> (0.2.4). « Bandeau sur la page de la branche » ne commande plus la vue <code>/project</code> : celle-ci a sa propre case, « Bandeau et pastille dans la liste des projets », active par défaut.</li>
+        <li><strong>La liste des projets se filtre</strong> (0.3.1). Trois boutons au-dessus de la liste, avec leur compteur : « Tous », « À surveiller » et « Critiques ». Le filtre masque la tuile en kanban et la ligne en vue liste, repart à « Tous » au rechargement et ne touche pas aux exclusions.</li>
+        <li><strong>Affichage <code>/project</code> allégé</strong> (0.3.1). Plus de bandeau ni de pastille ajoutés : la tuile ou la ligne prend simplement la couleur du niveau le plus urgent du projet, avec un liseré de 3 px. Le détail passe par l'infobulle. Le réglage s'appelle maintenant « Colorer les projets selon leur urgence dans la liste des projets ».</li>
         <li><strong>Le popup se filtre</strong> (0.3.0). Une barre de recherche par projet ou par branche, insensible à la casse et aux accents, et un bouton par niveau avec son compteur. Le filtre repart à zéro à chaque ouverture et ne touche pas aux exclusions. Les paramètres affichent désormais version, navigateur, mode d'installation et ID de l'extension.</li>
       </ul>
       <div class="callout reveal">
@@ -360,8 +362,8 @@ footer .left strong{color:var(--tw);font-weight:500}
         <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour en arrière-plan.</strong> Sans onglet, le popup affiche « données figées » plutôt que d'afficher une date périmée en silence.</li>
       </ul>
       <div class="callout reveal">
-        <div class="t">Version 0.3.0 — ce qui n'est pas vérifié</div>
-        <p>Les pastilles, les bandeaux et le compteur ont tourné dans Chrome le 03/11/2026. Le filtre du popup a été éprouvé sur une page servie en local avec des données fictives, jamais dans le popup réel : Chrome refuse les URL <code>chrome-extension://</code> aux outils d'automatisation. N'ont pas été éprouvés : le clic dans le menu <code>⊘</code>, la vue liste de <code>/project</code>, Edge, les notifications système, et le repli du worker vers un onglet quand la collecte directe est bloquée. Dis-moi si tu tombes dessus.</p>
+        <div class="t">Version 0.3.1 — ce qui n'est pas vérifié</div>
+        <p>Les pastilles, les bandeaux et le compteur ont tourné dans Chrome le 03/11/2026. Le filtre du popup a été éprouvé sur une page servie en local avec des données fictives, jamais dans le popup réel : Chrome refuse les URL <code>chrome-extension://</code> aux outils d'automatisation. <strong>Rien de la 0.3.1 n'a été chargé dans un navigateur</strong> : ni la barre de filtre des projets, ni le masquage des tuiles, ni le liseré de couleur. N'ont pas été éprouvés non plus : le clic dans le menu <code>⊘</code>, la vue liste de <code>/project</code>, Edge, les notifications système, et le repli du worker vers un onglet quand la collecte directe est bloquée. Dis-moi si tu tombes dessus.</p>
       </div>
     </div>
   </section>
@@ -384,8 +386,8 @@ footer .left strong{color:var(--tw);font-weight:500}
 
   <div class="footer-grad"></div>
   <footer>
-    <div class="left"><strong>Dynapps</strong> · Chromesh v0.3.0 · Usage interne</div>
-    <div>Yann Leroux, Mickael Delord · 3 novembre 2026</div>
+    <div class="left"><strong>Dynapps</strong> · Chromesh v0.3.1 · Usage interne</div>
+    <div>Yann Leroux, Mickael Delord · 4 novembre 2026</div>
   </footer>
 
 </div>

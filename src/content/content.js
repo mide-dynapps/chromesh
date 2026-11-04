@@ -20,7 +20,17 @@
         collecting: new Set(),
         rendering: false,
         renderPending: false,
+        // Filtre de la vue /project. Volatile, comme celui du popup : il
+        // repart a « Tous » au rechargement de la page.
+        projectFilter: "all",
     };
+
+    /** Boutons de filtre de la vue /project, dans l'ordre d'affichage. */
+    const PROJECT_FILTERS = [
+        { id: "all", label: "Tous", levels: null },
+        { id: "watch", label: "À surveiller", levels: [LEVELS.WARNING, LEVELS.CRITICAL, LEVELS.EXPIRED] },
+        { id: "critical", label: "Critiques", levels: [LEVELS.CRITICAL, LEVELS.EXPIRED] },
+    ];
 
     const log = (...args) => console.debug("[chromesh]", ...args);
     const levelClass = (level) => `${PREFIX}-${level}`;
@@ -298,82 +308,116 @@ Cliquer pour exclure ${branchName} du suivi (reversible depuis les options).`;
             : `${branch} : ${urgency.describe(worst)}`;
     }
 
-    /**
-     * Marqueur sur une ligne de la vue liste. Un <tr> ne peut pas recevoir de
-     * <div> : le marqueur va dans la cellule du nom, et le niveau colore la
-     * ligne entiere.
-     */
-    function renderProjectRow(row, projectName, worst, branch, counts, shown) {
-        const cell = parse.projectTitleCell(row);
-        const existing = cell && cell.querySelector(`.${PREFIX}-row-badge`);
-        row.classList.remove(
-            `${PREFIX}-row`,
+    /** Retire toute coloration posee par une passe precedente. */
+    function clearProjectLevel(element) {
+        element.classList.remove(
+            `${PREFIX}-project`,
             levelClass(LEVELS.WARNING),
             levelClass(LEVELS.CRITICAL),
             levelClass(LEVELS.EXPIRED)
         );
-        if (!shown || !cell) {
-            if (existing) {
-                existing.remove();
-            }
-            return;
-        }
-        row.classList.add(`${PREFIX}-row`, levelClass(worst.level));
-        const badge = existing || document.createElement("span");
-        badge.className = `${PREFIX}-row-badge ${levelClass(worst.level)}`;
-        badge.textContent = urgency.badgeLabel(worst);
-        badge.title = projectSummaryText(branch, counts, worst);
-        if (!existing) {
-            cell.append(badge);
-        }
+        element.removeAttribute("title");
     }
 
-    /** Bandeau en tete du bloc projet, sur la vue /project. */
-    function renderProjectCard(card, projectName, layout = "kanban") {
+    /**
+     * Vue /project : la tuile (kanban) ou la ligne (liste) prend la couleur du
+     * niveau le plus urgent du projet. Aucun element injecte, pour garder le
+     * meme affichage que la liste d'origine ; le detail passe par l'infobulle.
+     */
+    function renderProjectCard(card, projectName) {
         const { state: worst, branch, counts } = worstForProject(projectName);
         const shown =
             state.settings.showProjectBanner &&
             (worst.level === LEVELS.WARNING ||
                 worst.level === LEVELS.CRITICAL ||
                 worst.level === LEVELS.EXPIRED);
-        if (layout === "list") {
-            renderProjectRow(card, projectName, worst, branch, counts, shown);
-            return;
+        clearProjectLevel(card);
+        if (shown) {
+            card.classList.add(`${PREFIX}-project`, levelClass(worst.level));
+            card.title = projectSummaryText(branch, counts, worst);
         }
-        let banner = card.querySelector(`.${PREFIX}-project-banner`);
-        if (!shown) {
-            if (banner) {
-                banner.remove();
+        // Renvoye meme quand la coloration est coupee : le filtre en depend.
+        return worst.level;
+    }
+
+    function projectFilterCounts(levels) {
+        const counts = { all: 0, watch: 0, critical: 0 };
+        for (const level of levels.values()) {
+            counts.all += 1;
+            if (level === LEVELS.CRITICAL || level === LEVELS.EXPIRED) {
+                counts.critical += 1;
+                counts.watch += 1;
+            } else if (level === LEVELS.WARNING) {
+                counts.watch += 1;
             }
+        }
+        return counts;
+    }
+
+    /** Barre de filtre posee au-dessus de la liste des projets. */
+    function renderProjectFilterBar(cards, levels) {
+        const anchor = parse.projectListAnchor(cards);
+        if (!anchor || !anchor.parentElement) {
             return;
         }
-        if (!banner) {
-            banner = document.createElement("div");
-            card.insertBefore(banner, card.firstChild);
+        let bar = document.querySelector(`.${PREFIX}-filter`);
+        if (!bar) {
+            bar = document.createElement("div");
+            bar.className = `${PREFIX}-filter`;
+            for (const choice of PROJECT_FILTERS) {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = `${PREFIX}-filter-button`;
+                button.dataset.cshFilter = choice.id;
+                button.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    state.projectFilter = choice.id;
+                    // Rendu immediat : passer par scheduleRender ajouterait
+                    // 250 ms d'attente apres le clic.
+                    render().catch(log);
+                });
+                bar.append(button);
+            }
         }
-        // La classe -banner porte les couleurs deja definies par niveau.
-        banner.className = `${PREFIX}-banner ${PREFIX}-project-banner ${levelClass(worst.level)}`;
-        banner.replaceChildren();
+        // Owl peut avoir rejoue la liste : la barre est repositionnee au lieu
+        // d'etre recreee, pour garder les ecouteurs.
+        if (bar.nextElementSibling !== anchor) {
+            anchor.parentElement.insertBefore(bar, anchor);
+        }
+        const counts = projectFilterCounts(levels);
+        for (const choice of PROJECT_FILTERS) {
+            const button = bar.querySelector(`[data-csh-filter="${choice.id}"]`);
+            button.textContent = `${choice.label} (${counts[choice.id]})`;
+            button.classList.toggle(`${PREFIX}-active`, state.projectFilter === choice.id);
+            button.setAttribute("aria-pressed", String(state.projectFilter === choice.id));
+        }
+    }
 
-        const chip = document.createElement("span");
-        chip.className = `${PREFIX}-banner-chip`;
-        chip.textContent = urgency.badgeLabel(worst);
-
-        const text = document.createElement("span");
-        text.className = `${PREFIX}-banner-text`;
-        text.textContent = projectSummaryText(branch, counts, worst);
-
-        banner.append(chip, text);
-        banner.title = `${branch} — ${urgency.describe(worst)}`;
+    function applyProjectFilter(cards, levels) {
+        const choice =
+            PROJECT_FILTERS.find((item) => item.id === state.projectFilter) || PROJECT_FILTERS[0];
+        for (const card of cards) {
+            const hidden = Boolean(choice.levels && !choice.levels.includes(levels.get(card)));
+            parse.projectHideTarget(card).classList.toggle(`${PREFIX}-hidden`, hidden);
+        }
     }
 
     function renderProjectIndex() {
-        for (const card of parse.listProjectCards(document)) {
+        const cards = parse.listProjectCards(document);
+        const levels = new Map();
+        for (const card of cards) {
             if (store.isProjectIgnored(card.name, state.settings.ignored)) {
+                // Un projet exclu apres coup garde sinon la couleur de la passe
+                // precedente jusqu'au rechargement de la page.
+                clearProjectLevel(card.element);
+                levels.set(card, LEVELS.UNKNOWN);
                 continue;
             }
-            renderProjectCard(card.element, card.name, card.layout);
+            levels.set(card, renderProjectCard(card.element, card.name));
         }
+        renderProjectFilterBar(cards, levels);
+        applyProjectFilter(cards, levels);
     }
 
     function renderBanner(branchState) {
