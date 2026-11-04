@@ -166,9 +166,28 @@
         return [...cards.values()];
     }
 
-    /** Cellule ou bloc qui porte le nom, point d'accroche du marqueur. */
-    function projectTitleCell(card) {
-        return card.querySelector(".x-odoo-sh-project-name") || card.firstElementChild;
+    /**
+     * Bloc qui contient toutes les tuiles ou lignes de projets : point
+     * d'insertion de la barre de filtre, juste avant lui.
+     */
+    function projectListAnchor(cards) {
+        if (!cards.length) {
+            return null;
+        }
+        const first = cards[0].element;
+        if (cards[0].layout === "list") {
+            return first.closest("table") || first.closest("tbody");
+        }
+        return first.closest(".o_project_card_container")?.parentElement || first.parentElement;
+    }
+
+    /**
+     * Element a masquer pour retirer un projet de la liste : en kanban la
+     * cellule de grille, qui laisserait sinon un trou, et en liste le <tr>,
+     * qui est deja la carte.
+     */
+    function projectHideTarget(card) {
+        return card.element.closest(".o_project_card_container") || card.element;
     }
 
     /** {project, branch} from /project/<project>/branches/<branch>/... */
@@ -187,7 +206,8 @@
         listBranches,
         isProjectIndex,
         listProjectCards,
-        projectTitleCell,
+        projectListAnchor,
+        projectHideTarget,
         locationInfo,
         cacheKey,
     };

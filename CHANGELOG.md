@@ -6,6 +6,33 @@ en haut.
 Statut de test : aucune version n'a encore été validée dans un navigateur
 au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 
+## 0.3.1 — 04/11/2026
+
+### Ajouté
+- Vue `/project` : barre de filtre au-dessus de la liste des projets. Trois
+  boutons avec compteur — « Tous », « À surveiller » (attention, critique,
+  expiré) et « Critiques » (critique, expiré). Le filtre masque la tuile en
+  kanban et la ligne en liste. Il ne persiste pas : il repart à « Tous » au
+  rechargement, comme celui du popup, et ne touche pas aux exclusions.
+
+### Modifié
+- Vue `/project` : plus de bandeau ni de pastille injectés. La tuile (kanban)
+  ou la ligne (liste) prend seulement la couleur du niveau le plus urgent du
+  projet, avec un liseré de 3 px ; le détail passe par l'infobulle. Affichage
+  cohérent avec le reste de la page.
+- Libellé du réglage correspondant : « Colorer les projets selon leur urgence
+  dans la liste des projets ».
+
+### Corrigé
+- Un projet exclu après coup garde la couleur de la passe précédente jusqu'au
+  rechargement de la page.
+
+### Vérifié
+- `node --check` sur tous les fichiers de `src/`.
+- Fins de ligne inchangées (`git diff --stat`).
+- Non chargée dans Edge ni Chrome : position de la barre de filtre, masquage
+  des tuiles et rendu du liseré non contrôlés dans le navigateur.
+
 ## 0.3.0 — 03/11/2026
 
 ### Ajouté
