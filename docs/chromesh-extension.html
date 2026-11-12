@@ -276,7 +276,7 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
   <div class="rail-id">
     <span class="eyebrow">Outil interne</span>
     <span class="name">Chromesh</span>
-    <span class="sub">v0.4.0 · Edge &amp; Chrome</span>
+    <span class="sub">v0.5.0 · Edge &amp; Chrome</span>
   </div>
   <nav>
     <a href="#intro" data-target="intro">Présentation</a>
@@ -300,14 +300,14 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
     <h1>Ne perds plus un build staging <span class="accent">par inattention</span></h1>
     <p class="hero-lede">Chromesh affiche l'échéance de suppression des builds staging Odoo.sh là où tu travailles déjà, comptée en jours ouvrés. Installation en cinq minutes, aucun compte à créer.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/yale-dynapps/chromesh/releases/download/0.4.0/chromesh-0.4.0.zip" target="_blank" rel="noopener">Télécharger chromesh-0.4.0.zip <span class="size">· 49 Ko</span></a>
+      <a class="btn" href="https://github.com/yale-dynapps/chromesh/releases/download/0.5.0/chromesh-0.5.0.zip" target="_blank" rel="noopener">Télécharger chromesh-0.5.0.zip <span class="size">· 55 Ko</span></a>
       <p class="note">Depuis le dépôt GitHub. Les versions précédentes sont sur la <a href="https://github.com/yale-dynapps/chromesh/releases" target="_blank" rel="noopener">page des releases</a>.</p>
     </div>
     <div class="facts">
-      <div><div class="k">Version</div><div class="v">0.4.0</div></div>
-      <div><div class="k">Mise à jour</div><div class="v">04/11/2026</div></div>
+      <div><div class="k">Version</div><div class="v">0.5.0</div></div>
+      <div><div class="k">Mise à jour</div><div class="v">12/11/2026</div></div>
       <div><div class="k">Navigateurs</div><div class="v">Edge, Chrome</div></div>
-      <div><div class="k">Permissions</div><div class="v">4, aucune donnée sortante</div></div>
+      <div><div class="k">Permissions</div><div class="v">5 + 1 optionnelle, aucune donnée sortante</div></div>
       <div><div class="k">Auteurs</div><div class="v">Yann Leroux, Mickael Delord</div></div>
     </div>
   </section>
@@ -337,6 +337,7 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
         <li><strong>Liste des projets.</strong> La tuile ou la ligne prend la couleur du projet le plus urgent, détail en infobulle. Trois boutons filtrent : Tous, À surveiller, Critiques.</li>
         <li><strong>Icône de la barre d'outils.</strong> Un badge rouge compte les branches critiques ou expirées, tous projets confondus.</li>
         <li><strong>Popup.</strong> Tous tes projets d'un coup, triés par urgence, avec recherche, filtre par niveau et boutons d'exclusion.</li>
+        <li><strong>Bases d'essai Odoo Online (option).</strong> Ouvre une base d'essai <code>*.odoo.com</code> dont tu es admin : son échéance rejoint le popup, le badge et les notifications, sous <code>Odoo Online</code>.</li>
       </ul>
     </div>
   </section>
@@ -410,6 +411,7 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
             <tr><td>Affichage</td><td class="num">3 cases</td><td>Pastilles, bandeau de branche et couleur des projets, indépendants.</td></tr>
             <tr><td>Balayage multi-projets</td><td class="num">activé</td><td>À couper si ton portefeuille est large et que tu veux limiter les requêtes.</td></tr>
             <tr><td>Rafraîchissement</td><td class="num">6 h</td><td>Borné de 1 à 72 h.</td></tr>
+            <tr><td>Bases d'essai Odoo Online</td><td class="num">désactivé</td><td>Lit l'échéance des bases d'essai que tu ouvres. Demande l'accès à <code>*.odoo.com</code> à l'activation ; désactivé, aucune requête.</td></tr>
           </tbody>
         </table>
       </div>
@@ -422,6 +424,7 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
             <tr><td><code>projet::branche</code></td><td>Exclut cette branche.</td></tr>
             <tr><td><code>projet::*</code></td><td>Exclut le projet entier, qui n'est même plus interrogé.</td></tr>
             <tr><td><code>projet</code></td><td>Identique à <code>projet::*</code>.</td></tr>
+            <tr><td><code>Odoo Online::base</code></td><td>Exclut une base Odoo Online.</td></tr>
           </tbody>
         </table>
       </div>
@@ -433,10 +436,10 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
       <span class="eyebrow reveal">Données</span>
       <h2 class="reveal">Où elle regarde, et <span class="accent">où elle n'envoie rien</span></h2>
       <ul class="b-list reveal">
-        <li><strong>Elle ne lit que <code>www.odoo.sh</code>.</strong> Aucune autre page, aucun envoi vers l'extérieur, aucune télémétrie.</li>
+        <li><strong>Elle ne lit que <code>www.odoo.sh</code>, et <code>*.odoo.com</code> si tu actives l'option Odoo Online.</strong> Aucune autre page, aucun envoi vers l'extérieur, aucune télémétrie.</li>
         <li><strong>Elle utilise ta session Odoo.sh.</strong> Tu ne vois que les projets auxquels tu as déjà accès.</li>
         <li><strong>Tout reste local.</strong> Les échéances sont mises en cache dans le stockage du navigateur ; seuls les réglages se synchronisent avec ton profil.</li>
-        <li><strong>Quatre permissions</strong> : <code>storage</code>, <code>alarms</code>, <code>notifications</code>, et l'accès à <code>https://www.odoo.sh/*</code>. Rien d'autre.</li>
+        <li><strong>Cinq permissions, une optionnelle</strong> : <code>storage</code>, <code>alarms</code>, <code>notifications</code>, <code>scripting</code> et l'accès à <code>https://www.odoo.sh/*</code>. L'accès à <code>https://*.odoo.com/*</code> n'est demandé qu'à l'activation de l'option Odoo Online, et rendu quand tu la coupes.</li>
         <li><strong>Un onglet Odoo.sh ouvert fiabilise la mise à jour.</strong> Sans onglet, le popup affiche « données figées » plutôt qu'une date périmée en silence.</li>
       </ul>
     </div>
@@ -446,7 +449,7 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
     <div class="wrap">
       <span class="eyebrow reveal">Fiabilité</span>
       <h2 class="reveal">Ce qui est testé, et ce qui <span class="accent">ne l'est pas</span></h2>
-      <p class="lede reveal">La 0.4.0 est née d'une revue de code complète. Le calcul des échéances, le stockage et les filtres sont couverts par 68 assertions automatisées, exécutées hors navigateur à chaque modification.</p>
+      <p class="lede reveal">Le calcul des échéances, le stockage, les filtres et la reconnaissance des bases Odoo Online sont couverts par 91 assertions automatisées, exécutées hors navigateur à chaque modification.</p>
       <div class="scroll reveal">
         <table>
           <thead><tr><th scope="col">Domaine</th><th scope="col">Couverture</th></tr></thead>
@@ -455,14 +458,15 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
             <tr><td>Niveaux d'urgence et libellés</td><td>Tests automatisés</td></tr>
             <tr><td>Stockage, exclusions, purge du cache</td><td>Tests automatisés</td></tr>
             <tr><td>Filtre du popup</td><td>Tests automatisés</td></tr>
+            <tr><td>Reconnaissance des bases Odoo Online</td><td>Tests automatisés, sur trois sessions réelles relevées à la main</td></tr>
             <tr><td>Injection dans les pages Odoo.sh</td><td>Contrôle manuel uniquement</td></tr>
             <tr><td>Service worker, notifications système</td><td>Jamais déclenché en conditions réelles</td></tr>
           </tbody>
         </table>
       </div>
       <div class="callout warn reveal">
-        <span class="t">Version 0.4.0 — non vérifié dans un navigateur</span>
-        <p>Les correctifs de la 0.4.0 — purge du cache, jeton de balayage partagé entre onglets, clic sur notification — n'ont pas été éprouvés dans Edge ni dans Chrome. Les pastilles, bandeaux et compteurs ont tourné dans Chrome le 03/11/2026, sur les versions antérieures. Signale-moi tout écart.</p>
+        <span class="t">Version 0.5.0 — non vérifié dans un navigateur</span>
+        <p>L'option Odoo Online — demande d'accès, injection du script, lecture de session — et les correctifs de la 0.4.0 n'ont pas été éprouvés dans Edge ni dans Chrome. Les pastilles, bandeaux et compteurs ont tourné dans Chrome le 03/11/2026, sur les versions antérieures. Signale-moi tout écart.</p>
       </div>
     </div>
   </section>
@@ -470,9 +474,10 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
   <section id="versions" class="alt">
     <div class="wrap">
       <span class="eyebrow reveal">Versions</span>
-      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.4.0</span></h2>
+      <h2 class="reveal">De la 0.1.0 à la <span class="accent">0.5.0</span></h2>
       <p class="lede reveal">L'historique complet, avec ce qui a été vérifié à chaque fois, est dans le <a href="https://github.com/yale-dynapps/chromesh/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG</a>.</p>
       <ul class="b-list reveal">
+        <li><strong>Bases d'essai Odoo Online</strong> (0.5.0). En option, désactivée par défaut. Ouvre une base d'essai <code>*.odoo.com</code> : son échéance rejoint le popup. Les productions Odoo.sh servies sur <code>*.odoo.com</code> sont reconnues et ignorées.</li>
         <li><strong>Robustesse et tests</strong> (0.4.0). Une branche supprimée sur Odoo.sh sort maintenant du cache au lieu d'y vieillir en « expiré ». Deux onglets ouverts ne balaient plus le portefeuille en double. Un échec de collecte ne bloque plus la reprise pendant six heures. Premiers tests automatisés : 68 assertions.</li>
         <li><strong>Liste des projets allégée et filtrable</strong> (0.3.1). Plus de bandeau ajouté : la tuile prend la couleur du projet le plus urgent, et trois boutons filtrent la liste.</li>
         <li><strong>Le popup se filtre</strong> (0.3.0). Recherche par projet ou branche, insensible à la casse et aux accents, et un bouton par niveau avec son compteur.</li>
@@ -498,8 +503,8 @@ footer strong{color:rgba(255,255,255,.8);font-weight:500}
 
   <div class="grad-line"></div>
   <footer>
-    <div><strong>Dynapps</strong> · Chromesh v0.4.0 · Usage interne</div>
-    <div>Yann Leroux, Mickael Delord · 4 novembre 2026</div>
+    <div><strong>Dynapps</strong> · Chromesh v0.5.0 · Usage interne</div>
+    <div>Yann Leroux, Mickael Delord · 12 novembre 2026</div>
   </footer>
 </div>
 

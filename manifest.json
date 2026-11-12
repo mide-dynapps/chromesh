@@ -1,15 +1,19 @@
 {
   "manifest_version": 3,
   "name": "Chromesh",
-  "version": "0.4.0",
-  "description": "Alerte sur l'expiration des builds staging Odoo.sh, comptee en jours ouvres.",
+  "version": "0.5.0",
+  "description": "Alerte sur l'expiration des builds staging Odoo.sh et des bases d'essai Odoo Online, comptee en jours ouvres.",
   "permissions": [
     "storage",
     "alarms",
-    "notifications"
+    "notifications",
+    "scripting"
   ],
   "host_permissions": [
     "https://www.odoo.sh/*"
+  ],
+  "optional_host_permissions": [
+    "https://*.odoo.com/*"
   ],
   "background": {
     "service_worker": "src/background/service-worker.js"

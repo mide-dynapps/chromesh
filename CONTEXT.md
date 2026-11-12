@@ -90,3 +90,26 @@ s'enregistrent qu'au démarrage : vérifier après relance.
   (`chrome.tabs.sendMessage`), puis affiche « données figées ».
 - Préfixes `csh-` partout, pour cohabiter avec Odoo Toolbox, déjà installée.
 - Le DOM ne sert qu'à accrocher les pastilles, plus à porter la donnée.
+
+## Odoo Online (12/11/2026, 0.5.0)
+
+Sondes manuelles de `POST /web/session/get_session_info`, faites par
+l'utilisateur dans la console, compte admin. Champs utiles, anonymisés :
+
+| Champ | Online 18.0 | Online saas~19.3 (essai) | Odoo.sh 18.0 prod |
+|---|---|---|---|
+| `server_version` | `18.0+e` | `saas~19.3+e` | `18.0+e` |
+| `db` et sous-domaine | égaux | égaux | différents (`<owner>-<projet>-prod-<id>`) |
+| `odoo_website_url` | présent | présent | absent |
+| `expiration_date` | `YYYY-MM-DD HH:MM:SS` | `YYYY-MM-DD HH:MM:SS` | `YYYY-MM-DD HH:MM:SS` |
+| `expiration_reason` | `renewal` | `trial` | `renewal` |
+
+Décisions, à ne pas re-litiger :
+
+- Critère SaaS : `db` égal au sous-domaine **et** `odoo_website_url` présent.
+  Ni `server_version` ni `expiration_reason` ne discriminent.
+- Seules les bases `trial` sont suivies pour l'instant (choix utilisateur).
+- Option désactivée par défaut ; désactivée, aucun script injecté
+  (inscription dynamique par `chrome.scripting`) et aucun appel de session.
+
+Non sondé : base Online dupliquée pour test (`expiration_reason` inconnu).

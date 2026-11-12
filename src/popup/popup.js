@@ -115,6 +115,7 @@
 
     function drawRow(row) {
         const { project, branch } = row;
+        const isOnline = row.entry.source === "online";
 
         const item = document.createElement("li");
         item.title = urgency.describe(row.state);
@@ -134,17 +135,21 @@
         detail.className = "detail";
         detail.textContent =
             row.level === LEVELS.EXPIRED
-                ? `${project} · à rebuild`
+                ? `${project} · ${isOnline ? "essai expiré" : "à rebuild"}`
                 : `${project} · dernier jour utile ${row.state.lastSafeDay.toLocaleDateString("fr-FR")}`;
 
         const actions = document.createElement("span");
         actions.className = "actions";
-        actions.append(
-            actionButton("⊘ branche", `Exclure la branche ${branch}`, () => store.addIgnored(row.key)),
-            actionButton("⊘ projet", `Exclure toutes les branches du projet ${project}`, () =>
-                store.addIgnored(`${project}::*`)
-            )
-        );
+        if (isOnline) {
+            actions.append(actionButton("⊘ base", `Exclure la base ${branch}`, () => store.addIgnored(row.key)));
+        } else {
+            actions.append(
+                actionButton("⊘ branche", `Exclure la branche ${branch}`, () => store.addIgnored(row.key)),
+                actionButton("⊘ projet", `Exclure toutes les branches du projet ${project}`, () =>
+                    store.addIgnored(`${project}::*`)
+                )
+            );
+        }
 
         meta.append(name, detail);
         item.append(chip, meta, actions);

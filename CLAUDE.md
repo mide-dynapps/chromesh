@@ -46,13 +46,16 @@ publiés). Révoquer le lien ou le secret concerné. Ne pas réécrire l'histori
 ## Architecture à respecter
 
 - Pas d'étape de build. Ce sont des scripts classiques qui partagent le
-  namespace global `CHROMESH` (`workdays`, `parse`, `urgency`, `store`, `api`).
+  namespace global `CHROMESH` (`workdays`, `parse`, `urgency`, `store`, `api`,
+  `online`).
   Le service worker les charge par `importScripts`.
 - Un nouveau fichier de `src/common/` doit être déclaré dans chaque contexte
   qui s'en sert, et nulle part ailleurs : `manifest.json` (`content_scripts`),
   `importScripts` dans `src/background/service-worker.js`, les `<script>` de
-  `popup.html` et `options.html`. Aujourd'hui le worker se passe de `parse.js`,
-  le popup de `parse.js` et `api.js`, les options de tout sauf `settings.js`.
+  `popup.html` et `options.html`, la liste `js` de `syncOnlineScript` (script
+  Odoo Online inscrit dynamiquement). Aujourd'hui le worker se passe de
+  `parse.js`, le popup de `parse.js`, `api.js` et `online.js`, les options de
+  tout sauf `settings.js` et `online.js`.
   Respecter l'ordre des dépendances : `urgency.js` lit `ns.workdays` au
   chargement.
 - Classes CSS et éléments injectés : préfixe `csh-`, pour cohabiter avec Odoo
@@ -111,8 +114,11 @@ publiés). Révoquer le lien ou le secret concerné. Ne pas réécrire l'histori
   - la `version` doit être strictement supérieure à celle déjà publiée ;
   - pas de code chargé à distance : tout le JavaScript est dans `src/` ;
   - garder les permissions au minimum (`storage`, `alarms`, `notifications`,
-    hôte `https://www.odoo.sh/*`). Toute permission ajoutée doit être
-    justifiée dans la fiche du store et retarde la revue ;
+    `scripting`, hôte `https://www.odoo.sh/*`, hôte optionnel
+    `https://*.odoo.com/*`). Toute permission ajoutée doit être justifiée dans
+    la fiche du store et retarde la revue. `scripting` et l'hôte optionnel
+    servent l'option Odoo Online : le script n'est injecté que si elle est
+    active ;
   - icône 128 px obligatoire (`icons/icon128.png`).
 - Aujourd'hui, l'extension n'est publiée sur aucun store : elle est
   distribuée en ZIP à charger en mode développeur (voir `README.md`).

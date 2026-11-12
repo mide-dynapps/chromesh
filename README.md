@@ -40,6 +40,7 @@ travailles déjà.
 | Icône de la barre d'outils | Badge rouge = nombre de branches critiques ou expirées |
 | Popup | Tableau de bord multi-projets trié par urgence. Filtre par texte et par niveau. Boutons `⊘ branche` / `⊘ projet` |
 | Notification système | Une par branche et par jour, pas avant l'heure configurée |
+| Bases d'essai Odoo Online (option) | Échéance lue à l'ouverture de la base, affichée dans le popup sous `Odoo Online`, avec badge et notification |
 
 ## Modèle de calcul
 
@@ -105,6 +106,7 @@ Clic droit sur l'icône → Options.
 | Pastilles, bandeau, couleur des projets | oui | Trois réglages d'affichage indépendants |
 | Balayer tous les projets | oui | À couper si le portefeuille est large |
 | Rafraîchir toutes les | 6 h | Borné à 1–72 |
+| Surveiller les bases d'essai Odoo Online | non | Voir « Odoo Online » plus bas. Demande l'accès à `*.odoo.com` à l'activation |
 | Branches ignorées | vide | Une règle par ligne |
 
 ### Exclusions
@@ -116,6 +118,7 @@ Une seule liste, dans `chrome.storage.sync` :
 | `projet::branche` | exclut cette branche |
 | `projet::*` | exclut le projet entier, qui n'est même plus interrogé |
 | `projet` | identique à `projet::*` |
+| `Odoo Online::base` | exclut une base Odoo Online |
 
 La casse est ignorée. Les boutons `⊘` de la page et du popup écrivent dans cette
 même liste ; le retrait se fait depuis les options.
@@ -129,7 +132,8 @@ src/common/urgency.js    date -> niveau d'urgence + libellés
 src/common/settings.js   chrome.storage (sync = réglages, local = cache)
 src/common/api.js        client de l'API /app/ d'Odoo.sh
 src/common/parse.js      repérage des branches dans le DOM, pour l'injection
-src/content/             injection dans les pages odoo.sh
+src/common/online.js     bases Odoo Online : critère SaaS, entrée de cache
+src/content/             injection dans les pages odoo.sh ; online.js pour *.odoo.com
 src/background/          alarme horaire, badge, notifications
 src/popup/ src/options/
 tests/                   tests de la logique pure, sous Node
@@ -138,8 +142,11 @@ tests/                   tests de la logique pure, sous Node
 Pas d'étape de build : ce sont des scripts classiques qui partagent le namespace
 global `CHROMESH`, chargés par `importScripts` côté service worker et par des
 balises `<script>` ailleurs. Chaque contexte ne charge que ce dont il se sert :
-le worker se passe de `parse.js`, le popup de `parse.js` et `api.js`, les
-options de tout sauf `settings.js`.
+le worker se passe de `parse.js`, le popup de `parse.js`, `api.js` et
+`online.js`, les options de tout sauf `settings.js` et `online.js`. Le script
+`src/content/online.js` n'est pas déclaré dans `manifest.json` : le worker
+l'inscrit par `chrome.scripting.registerContentScripts`, seulement quand
+l'option Odoo Online est active.
 
 ### Décisions structurantes
 
@@ -194,10 +201,33 @@ et une `builds` par branche staging.
 Deux routes essayées qui n'existent pas, notées pour éviter de les retenter :
 `/app/get_projects` renvoie `404`, `/web/dataset/call_kw` renvoie `500`.
 
+## Odoo Online
+
+Option désactivée par défaut. Une fois active, chaque base `*.odoo.com` ouverte
+dans le navigateur passe ces contrôles, du moins coûteux au plus coûteux :
+
+1. réglage actif (sinon le script n'est même pas injecté) ;
+2. hôte `<base>.odoo.com`, hors `www.odoo.com`, `*.dev.odoo.com` et pages de
+   connexion ;
+3. pas de lecture de cet hôte depuis moins de `refreshHours` ;
+4. `POST /web/session/get_session_info`, avec la session de l'utilisateur ;
+5. instance Odoo Online : `db` égal au sous-domaine **et** clé
+   `odoo_website_url` présente. Une production Odoo.sh servie sur
+   `<projet>.odoo.com` échoue aux deux ;
+6. `expiration_reason` vaut `trial` et `expiration_date` est présent (il ne
+   l'est que pour un administrateur) ;
+7. base absente des exclusions.
+
+Une base qui passe tout est écrite en cache sous `Odoo Online::<base>`. Une base
+Online qui ne passe plus l'étape 6 (abonnement souscrit) en sort.
+`server_version` ne sert pas : Odoo Online 18.0 et Odoo.sh 18.0 renvoient tous
+deux `18.0+e`. `expiration_date` arrive au format `YYYY-MM-DD HH:MM:SS` ; seul
+le jour est gardé.
+
 ## Développement
 
 ```sh
-node tests/run.js                              # logique pure, 68 assertions
+node tests/run.js                              # logique pure, 91 assertions
 for f in $(find src -name "*.js"); do node --check "$f"; done
 ```
 
@@ -237,5 +267,8 @@ Le détail du flux de contribution est dans [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - **La file d'écriture ne protège qu'un contexte.** Entre le worker et un
   onglet, c'est le jeton de balayage qui sérialise les collectes ; une écriture
   isolée simultanée reste théoriquement possible.
+- **Odoo Online : seules les bases déjà ouvertes sont connues.** Une base
+  d'essai jamais ouverte depuis le navigateur n'apparaît pas. Une base servie
+  sur un domaine propre au client n'est pas suivie.
 - **Rien n'est publié sur les stores.** Distribution par ZIP, en mode
   développeur.

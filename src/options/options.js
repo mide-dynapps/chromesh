@@ -1,7 +1,16 @@
 (async function () {
-    const { store } = globalThis.CHROMESH;
+    const { store, online } = globalThis.CHROMESH;
 
-    const CHECKBOXES = ["useHolidays", "notify", "showBadges", "showBanner", "showProjectBanner", "scanAllProjects"];
+    const CHECKBOXES = [
+        "useHolidays",
+        "notify",
+        "showBadges",
+        "showBanner",
+        "showProjectBanner",
+        "scanAllProjects",
+        "trackOnline",
+    ];
+    const ONLINE_ACCESS = { origins: [online.ORIGIN] };
     const NUMBERS = ["criticalDays", "warningDays", "notifyHour", "refreshHours"];
 
     const settings = await store.getSettings();
@@ -16,6 +25,31 @@
     document.getElementById("ignored").value = (settings.ignored || []).join("\n");
 
     showBuild();
+
+    // L'accès à *.odoo.com se demande au clic : le navigateur exige un geste
+    // de l'utilisateur, et l'appel doit précéder tout await.
+    const trackOnline = document.getElementById("trackOnline");
+    const onlineError = document.getElementById("online-error");
+    trackOnline.addEventListener("change", () => {
+        onlineError.hidden = true;
+        if (!trackOnline.checked) {
+            return;
+        }
+        chrome.permissions.request(ONLINE_ACCESS).then(
+            (granted) => {
+                if (!granted) {
+                    trackOnline.checked = false;
+                    onlineError.textContent = "Accès à *.odoo.com refusé : l'option reste désactivée.";
+                    onlineError.hidden = false;
+                }
+            },
+            (error) => {
+                trackOnline.checked = false;
+                onlineError.textContent = String(error.message || error);
+                onlineError.hidden = false;
+            }
+        );
+    });
 
     document.getElementById("save").addEventListener("click", async () => {
         const patch = { country: document.getElementById("country").value };
@@ -41,6 +75,11 @@
             // store.setSettings borne les nombres et force warningDays >=
             // criticalDays : les champs sont relus pour montrer le resultat.
             const written = await store.setSettings(patch);
+            if (!patch.trackOnline) {
+                // Option coupée : l'accès à *.odoo.com est rendu. Le service
+                // worker désinscrit le script sur ce changement.
+                await chrome.permissions.remove(ONLINE_ACCESS).catch(() => false);
+            }
             NUMBERS.forEach((id) => {
                 document.getElementById(id).value = written[id];
             });

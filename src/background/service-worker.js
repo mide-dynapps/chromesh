@@ -12,12 +12,14 @@ importScripts(
     "/src/common/workdays.js",
     "/src/common/urgency.js",
     "/src/common/settings.js",
-    "/src/common/api.js"
+    "/src/common/api.js",
+    "/src/common/online.js"
 );
 
-const { workdays, urgency, store, api } = globalThis.CHROMESH;
+const { workdays, urgency, store, api, online } = globalThis.CHROMESH;
 const LEVELS = urgency.LEVELS;
 const ALARM = "chromesh:check";
+const ONLINE_SCRIPT = "chromesh-online";
 
 function entryState(entry, settings) {
     if (!entry || !entry.expirationDate) {
@@ -64,6 +66,7 @@ async function maybeNotify(settings, rows) {
             continue;
         }
         const [project, branch] = row.key.split("::");
+        const isOnline = project === online.PROJECT;
         // Les deux segments sont encodés : un ':' dans un nom de projet ou de
         // branche casserait sinon la relecture au clic.
         const id = `chromesh:${encodeURIComponent(project)}:${encodeURIComponent(branch)}:${today}`;
@@ -72,7 +75,7 @@ async function maybeNotify(settings, rows) {
             iconUrl: chrome.runtime.getURL("icons/icon128.png"),
             title:
                 row.state.level === LEVELS.EXPIRED
-                    ? `${branch} — build staging expiré`
+                    ? `${branch} — ${isOnline ? "base d'essai expirée" : "build staging expiré"}`
                     : `${branch} — ${urgency.badgeLabel(row.state)}`,
             message: `${project} · ${urgency.describe(row.state)}`,
             priority: row.state.level === LEVELS.EXPIRED ? 1 : 2,
@@ -146,17 +149,50 @@ async function check(options = {}) {
     await maybeNotify(settings, rows);
 }
 
+/**
+ * Inscrit le content script Odoo Online si le réglage est actif et l'accès à
+ * *.odoo.com accordé ; le désinscrit sinon. Option désactivée : rien n'est
+ * injecté sur odoo.com, donc aucun appel de session.
+ */
+async function syncOnlineScript() {
+    const settings = await store.getSettings();
+    const granted = await chrome.permissions.contains({ origins: [online.ORIGIN] });
+    const registered = await chrome.scripting.getRegisteredContentScripts({ ids: [ONLINE_SCRIPT] });
+    const wanted = settings.trackOnline && granted;
+
+    if (wanted && !registered.length) {
+        await chrome.scripting.registerContentScripts([
+            {
+                id: ONLINE_SCRIPT,
+                matches: online.MATCHES,
+                excludeMatches: online.EXCLUDE_MATCHES,
+                js: ["src/common/settings.js", "src/common/online.js", "src/content/online.js"],
+                runAt: "document_idle",
+                persistAcrossSessions: true,
+            },
+        ]);
+    } else if (!wanted && registered.length) {
+        await chrome.scripting.unregisterContentScripts({ ids: [ONLINE_SCRIPT] });
+    }
+}
+
+function syncOnline() {
+    syncOnlineScript().catch((error) => console.debug("[chromesh] script Odoo Online", error));
+}
+
 function schedule() {
     chrome.alarms.create(ALARM, { periodInMinutes: 60, delayInMinutes: 1 });
 }
 
 chrome.runtime.onInstalled.addListener(() => {
     schedule();
+    syncOnline();
     check({ force: true });
 });
 
 chrome.runtime.onStartup.addListener(() => {
     schedule();
+    syncOnline();
     check();
 });
 
@@ -171,7 +207,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.ignored) {
         evaluateAll().then(({ rows }) => updateBadge(rows));
     }
+    if (area === "sync" && changes.trackOnline) {
+        syncOnline();
+    }
 });
+
+chrome.permissions.onAdded.addListener(syncOnline);
+chrome.permissions.onRemoved.addListener(syncOnline);
 
 chrome.runtime.onMessage.addListener((message) => {
     if (message?.type === "chromesh:refreshed") {
@@ -196,6 +238,11 @@ chrome.notifications.onClicked.addListener(async (notificationId) => {
     if (!project || !branch) {
         return;
     }
-    await chrome.tabs.create({ url: api.branchUrl(project, branch) });
+    // Une base Odoo Online n'a pas d'URL Odoo.sh : on prend celle du cache.
+    const entry = (await store.getBranches())[`${project}::${branch}`];
+    const url = project === online.PROJECT ? entry?.url : api.branchUrl(project, branch);
+    if (url) {
+        await chrome.tabs.create({ url });
+    }
     chrome.notifications.clear(notificationId);
 });

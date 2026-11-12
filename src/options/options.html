@@ -107,6 +107,32 @@
     </fieldset>
 
     <fieldset>
+        <legend>Odoo Online</legend>
+        <label>
+            <input type="checkbox" id="trackOnline">
+            <span class="grow">Surveiller les bases d'essai Odoo Online</span>
+        </label>
+        <p class="hint">
+            Quand cette option est active, Chromesh lit la date d'expiration de chaque base
+            Odoo Online (<code>*.odoo.com</code>) que vous ouvrez dans le navigateur. Il réutilise
+            votre session : aucun identifiant n'est stocké.
+        </p>
+        <p class="hint">
+            Seules les bases d'essai sont suivies, si vous les avez ouvertes au moins une fois et
+            que vous en êtes administrateur. Une base est relue au plus une fois par période de
+            rafraîchissement (réglage « Rafraîchir les données toutes les… »). Les productions
+            Odoo.sh servies sur <code>*.odoo.com</code> sont reconnues et ignorées. Pour exclure une
+            base : <code>Odoo Online::nom-de-la-base</code> dans la liste ci-dessous.
+        </p>
+        <p class="hint">
+            À l'activation, le navigateur demande l'accès à <code>*.odoo.com</code>. Option
+            désactivée : Chromesh n'intervient pas sur <code>*.odoo.com</code> et n'envoie aucune
+            requête.
+        </p>
+        <p id="online-error" class="error" role="alert" hidden></p>
+    </fieldset>
+
+    <fieldset>
         <legend>Branches ignorées</legend>
         <p class="hint">
             Une par ligne. <code>projet::branche</code> pour une branche,
@@ -122,9 +148,11 @@
 
     <footer id="build" class="build"></footer>
 
-    <!-- Seul settings.js est nécessaire : la page ne lit ni le DOM d'Odoo.sh
-         ni l'API, et n'affiche aucune échéance. -->
+    <!-- settings.js pour les réglages, online.js pour l'origine *.odoo.com
+         demandée à l'activation. La page ne lit ni le DOM d'Odoo.sh ni l'API,
+         et n'affiche aucune échéance. -->
     <script src="../common/settings.js"></script>
+    <script src="../common/online.js"></script>
     <script src="options.js"></script>
 </body>
 </html>

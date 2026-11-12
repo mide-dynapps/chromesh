@@ -252,5 +252,90 @@ const DAY = 86400000;
         equal("chaîne vide", parse.parseLongDate(""), null);
     }
 
+    /* ------------------------------------------------------- Odoo Online */
+    {
+        const { online, store } = loadCommon();
+        suite("online");
+
+        check("sous-domaine client candidat", online.isCandidateHost("acme-demo.odoo.com"));
+        check("www.odoo.com écarté", !online.isCandidateHost("www.odoo.com"));
+        check("build Odoo.sh *.dev.odoo.com écarté", !online.isCandidateHost("acme-demo-v19-123456.dev.odoo.com"));
+        check("domaine hors odoo.com écarté", !online.isCandidateHost("erp.acme.example"));
+
+        // Réponses de session réduites aux champs lus, d'après les sondes.
+        const trial = {
+            uid: 7,
+            db: "acme-demo",
+            server_version: "saas~19.3+e",
+            odoo_website_url: "https://www.odoo.com",
+            expiration_date: "2026-11-19 14:47:52",
+            expiration_reason: "trial",
+        };
+        const renewal = { ...trial, server_version: "18.0+e", expiration_reason: "renewal" };
+        const odooSh = {
+            uid: 6,
+            db: "acme-demo-v19-prod-123456",
+            server_version: "18.0+e",
+            expiration_date: "2029-01-13 00:00:00",
+            expiration_reason: "renewal",
+        };
+
+        check("base Online reconnue, version saas~", online.isSaas(trial, "acme-demo.odoo.com"));
+        check("base Online reconnue, version 18.0", online.isSaas(renewal, "acme-demo.odoo.com"));
+        check("production Odoo.sh sur *.odoo.com écartée", !online.isSaas(odooSh, "acme-demo.odoo.com"));
+        check(
+            "un seul signal ne suffit pas",
+            !online.isSaas({ ...odooSh, odoo_website_url: "https://www.odoo.com" }, "acme-demo.odoo.com")
+        );
+
+        equal("date Online ramenée au jour", online.toIsoDay("2026-11-19 14:47:52"), "2026-11-19");
+        equal("date illisible", online.toIsoDay("bientôt"), null);
+
+        const put = online.decide(trial, "acme-demo.odoo.com", 1000);
+        equal("base d'essai écrite", put.action, "put");
+        equal("clé de cache", put.key, "Odoo Online::acme-demo");
+        equal("entrée au format du cache", put.entry, {
+            project: "Odoo Online",
+            branch: "acme-demo",
+            expirationDate: "2026-11-19",
+            reason: "trial",
+            source: "online",
+            readable: true,
+            dropped: false,
+            url: "https://acme-demo.odoo.com/web",
+            fetchedAt: 1000,
+        });
+        equal("abonnement souscrit : entrée retirée", online.decide(renewal, "acme-demo.odoo.com").action, "drop");
+        const notAdmin = { ...trial };
+        delete notAdmin.expiration_date;
+        equal("utilisateur non admin : entrée retirée", online.decide(notAdmin, "acme-demo.odoo.com").action, "drop");
+        equal("Odoo.sh : rien à faire", online.decide(odooSh, "acme-demo.odoo.com"), {
+            action: "skip",
+            mixed: false,
+        });
+        check(
+            "signaux contradictoires signalés",
+            online.decide({ ...odooSh, db: "acme-demo" }, "acme-demo.odoo.com").mixed
+        );
+
+        check("option désactivée par défaut", (await store.getSettings()).trackOnline === false);
+        check(
+            "exclusion d'une base Online",
+            store.isIgnored("Odoo Online::acme-demo", ["Odoo Online::acme-demo"])
+        );
+
+        const hour = 3600000;
+        check("aucune lecture : appel autorisé", !(await store.onlineCheckedRecently("acme-demo.odoo.com", 6 * hour)));
+        await store.markOnlineChecked("acme-demo.odoo.com", Date.now());
+        check("lecture récente : appel évité", await store.onlineCheckedRecently("acme-demo.odoo.com", 6 * hour));
+        check(
+            "lecture ancienne : appel autorisé",
+            !(await store.onlineCheckedRecently("acme-demo.odoo.com", 6 * hour, Date.now() + 7 * hour))
+        );
+        await store.markOnlineChecked("autre.odoo.com", Date.now() + 31 * 24 * hour);
+        const traces = (await chrome.storage.local.get({ onlineChecked: {} })).onlineChecked;
+        check("trace de plus de 30 jours purgée", !("acme-demo.odoo.com" in traces));
+    }
+
     process.exit(report() ? 0 : 1);
 })();

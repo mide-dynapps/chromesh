@@ -6,6 +6,37 @@ en haut.
 Statut de test : aucune version n'a encore été validée dans un navigateur
 au-delà des points cités. Chaque entrée dit ce qui a été vérifié.
 
+## 0.5.0 — 12/11/2026
+
+Suivi des bases d'essai Odoo Online, en option.
+
+### Ajouté
+- Option « Surveiller les bases d'essai Odoo Online », désactivée par défaut.
+  À l'ouverture d'une base `*.odoo.com`, l'extension lit
+  `/web/session/get_session_info` avec la session de l'utilisateur et range
+  l'échéance d'une base d'essai (`expiration_reason` = `trial`) dans le popup,
+  sous `Odoo Online`. Badge et notifications comme pour les branches staging.
+- Critère « instance Odoo Online » : `db` égal au sous-domaine et clé
+  `odoo_website_url` présente. Une production Odoo.sh sur `*.odoo.com` est
+  écartée.
+- Une base n'est relue qu'une fois par période de rafraîchissement.
+- Exclusion d'une base : `Odoo Online::<base>`, ou bouton `⊘ base` du popup.
+- 23 assertions de test (91 au total).
+
+### Modifié
+- Permissions : `scripting` et l'hôte optionnel `https://*.odoo.com/*`. L'accès
+  n'est demandé qu'à l'activation de l'option et rendu à sa désactivation.
+  Option coupée : aucun script injecté sur `*.odoo.com`, aucune requête.
+- Le clic sur une notification d'une base Online ouvre la base.
+
+### Vérifié
+- `node tests/run.js` : 91 assertions passées. `node --check` sur `src/`.
+- Le critère SaaS et le format de `expiration_date` reposent sur trois sondes
+  de session faites à la main : une base Online 18.0, une base d'essai
+  Online saas~19.3, une production Odoo.sh 18.0.
+- Non vérifié : chargement dans Edge et Chrome, demande de permission,
+  inscription du script, cas d'une base Online dupliquée.
+
 ## 0.4.0 — 04/11/2026
 
 Revue de code complète : correction de trois défauts qui faussaient les

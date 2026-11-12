@@ -65,6 +65,7 @@ function loadCommon() {
     loadScript("src/common/urgency.js");
     loadScript("src/common/settings.js");
     loadScript("src/common/parse.js");
+    loadScript("src/common/online.js");
     loadScript("src/popup/filter.js");
     return globalThis.CHROMESH;
 }

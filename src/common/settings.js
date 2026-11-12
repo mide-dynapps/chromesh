@@ -23,6 +23,7 @@
         showBanner: true,
         showProjectBanner: true,
         scanAllProjects: true,
+        trackOnline: false,
         ignored: [],
     };
 
@@ -96,6 +97,9 @@
     const CACHE_KEY = "branches";
     const NOTIFIED_KEY = "notified";
     const STATUS_KEY = "status";
+    const ONLINE_CHECKED_KEY = "onlineChecked";
+    /** Au-delà, une trace de lecture Online est purgée. */
+    const ONLINE_CHECKED_TTL = 30 * 86400000;
 
     /** Ramène une valeur dans sa borne, ou renvoie le défaut si elle n'est pas un nombre. */
     function clamp(name, value) {
@@ -275,6 +279,32 @@
         return serialize(() => writeStatus({ lastScanAt: previous || 0 }));
     }
 
+    /**
+     * Bases Odoo Online : date de la dernière lecture de session, par hôte.
+     * Sert à ne pas rappeler /web/session/get_session_info à chaque page.
+     * Tenu à part du cache des branches : une base hors essai n'y figure pas,
+     * mais sa lecture doit quand même être espacée.
+     */
+    async function onlineCheckedRecently(host, intervalMs, now = Date.now()) {
+        const data = await chrome.storage.local.get({ [ONLINE_CHECKED_KEY]: {} });
+        const last = data[ONLINE_CHECKED_KEY][host] || 0;
+        return now - last < intervalMs;
+    }
+
+    async function markOnlineChecked(host, now = Date.now()) {
+        return serialize(async () => {
+            const data = await chrome.storage.local.get({ [ONLINE_CHECKED_KEY]: {} });
+            const checked = data[ONLINE_CHECKED_KEY];
+            for (const [name, at] of Object.entries(checked)) {
+                if (now - at > ONLINE_CHECKED_TTL) {
+                    delete checked[name];
+                }
+            }
+            checked[host] = now;
+            await chrome.storage.local.set({ [ONLINE_CHECKED_KEY]: checked });
+        });
+    }
+
     ns.store = {
         DEFAULTS,
         RANGES,
@@ -296,5 +326,7 @@
         setStatus,
         claimScan,
         releaseScan,
+        onlineCheckedRecently,
+        markOnlineChecked,
     };
 })(globalThis);
