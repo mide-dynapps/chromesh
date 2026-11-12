@@ -20,8 +20,11 @@ Suivi des bases d'essai Odoo Online, en option.
   `odoo_website_url` présente. Une production Odoo.sh sur `*.odoo.com` est
   écartée.
 - Une base n'est relue qu'une fois par période de rafraîchissement.
-- Exclusion d'une base : `Odoo Online::<base>`, ou bouton `⊘ base` du popup.
-- 23 assertions de test (91 au total).
+- Exclusion d'une base : `Odoo Online::<base>`, URL de la base collée dans
+  « Branches et bases ignorées » (convertie à l'enregistrement), ou bouton
+  `⊘ base` du popup. `Odoo Online::*` exclut toutes les bases. Une base exclue
+  n'est plus interrogée.
+- 30 assertions de test (98 au total).
 
 ### Modifié
 - Permissions : `scripting` et l'hôte optionnel `https://*.odoo.com/*`. L'accès
@@ -30,7 +33,7 @@ Suivi des bases d'essai Odoo Online, en option.
 - Le clic sur une notification d'une base Online ouvre la base.
 
 ### Vérifié
-- `node tests/run.js` : 91 assertions passées. `node --check` sur `src/`.
+- `node tests/run.js` : 98 assertions passées. `node --check` sur `src/`.
 - Le critère SaaS et le format de `expiration_date` reposent sur trois sondes
   de session faites à la main : une base Online 18.0, une base d'essai
   Online saas~19.3, une production Odoo.sh 18.0.

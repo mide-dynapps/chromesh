@@ -118,7 +118,9 @@ Une seule liste, dans `chrome.storage.sync` :
 | `projet::branche` | exclut cette branche |
 | `projet::*` | exclut le projet entier, qui n'est même plus interrogé |
 | `projet` | identique à `projet::*` |
-| `Odoo Online::base` | exclut une base Odoo Online |
+| `Odoo Online::base` | exclut une base Odoo Online, qui n'est plus interrogée |
+| `https://base.odoo.com/…` | URL collée telle quelle, convertie en `Odoo Online::base` à l'enregistrement |
+| `Odoo Online::*` | exclut toutes les bases Odoo Online |
 
 La casse est ignorée. Les boutons `⊘` de la page et du popup écrivent dans cette
 même liste ; le retrait se fait depuis les options.
@@ -208,7 +210,7 @@ dans le navigateur passe ces contrôles, du moins coûteux au plus coûteux :
 
 1. réglage actif (sinon le script n'est même pas injecté) ;
 2. hôte `<base>.odoo.com`, hors `www.odoo.com`, `*.dev.odoo.com` et pages de
-   connexion ;
+   connexion ; base absente des exclusions (pas d'appel sinon) ;
 3. pas de lecture de cet hôte depuis moins de `refreshHours` ;
 4. `POST /web/session/get_session_info`, avec la session de l'utilisateur ;
 5. instance Odoo Online : `db` égal au sous-domaine **et** clé
@@ -227,7 +229,7 @@ le jour est gardé.
 ## Développement
 
 ```sh
-node tests/run.js                              # logique pure, 91 assertions
+node tests/run.js                              # logique pure, 98 assertions
 for f in $(find src -name "*.js"); do node --check "$f"; done
 ```
 

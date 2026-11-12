@@ -122,7 +122,7 @@
             que vous en êtes administrateur. Une base est relue au plus une fois par période de
             rafraîchissement (réglage « Rafraîchir les données toutes les… »). Les productions
             Odoo.sh servies sur <code>*.odoo.com</code> sont reconnues et ignorées. Pour exclure une
-            base : <code>Odoo Online::nom-de-la-base</code> dans la liste ci-dessous.
+            base, collez son URL dans « Branches et bases ignorées » ci-dessous.
         </p>
         <p class="hint">
             À l'activation, le navigateur demande l'accès à <code>*.odoo.com</code>. Option
@@ -133,11 +133,16 @@
     </fieldset>
 
     <fieldset>
-        <legend>Branches ignorées</legend>
+        <legend>Branches et bases ignorées</legend>
         <p class="hint">
             Une par ligne. <code>projet::branche</code> pour une branche,
             <code>projet::*</code> ou <code>projet</code> pour tout le projet.
             La casse est ignorée.
+        </p>
+        <p class="hint">
+            Odoo Online : collez l'URL de la base (<code>https://acme.odoo.com/odoo</code>) ou
+            écrivez <code>Odoo Online::acme</code>. <code>Odoo Online::*</code> exclut toutes les
+            bases. Une base exclue n'est plus interrogée.
         </p>
         <textarea id="ignored" rows="4" style="width: 100%; box-sizing: border-box;"></textarea>
     </fieldset>

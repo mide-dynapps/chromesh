@@ -62,11 +62,17 @@
             // le reglage au lieu de revenir au defaut.
             patch[id] = raw === "" ? store.DEFAULTS[id] : Number(raw);
         });
-        patch.ignored = document
-            .getElementById("ignored")
-            .value.split("\n")
-            .map((line) => line.trim())
-            .filter(Boolean);
+        // Une URL de base Odoo Online collée telle quelle devient
+        // `Odoo Online::<base>`. Doublons retirés.
+        patch.ignored = [
+            ...new Set(
+                document
+                    .getElementById("ignored")
+                    .value.split("\n")
+                    .map((line) => online.ruleFromInput(line))
+                    .filter(Boolean)
+            ),
+        ];
 
         const saved = document.getElementById("saved");
         const failed = document.getElementById("save-error");
@@ -83,6 +89,7 @@
             NUMBERS.forEach((id) => {
                 document.getElementById(id).value = written[id];
             });
+            document.getElementById("ignored").value = written.ignored.join("\n");
             saved.hidden = false;
             setTimeout(() => {
                 saved.hidden = true;

@@ -6,8 +6,9 @@
  * Option désactivée : ce script n'est pas injecté, aucune requête n'est faite.
  *
  * Contrôles, du moins coûteux au plus coûteux :
- *   réglage actif → hôte candidat → pas de lecture récente → appel session
- *   → instance Online → base d'essai → base non exclue.
+ *   réglage actif → hôte candidat → base non exclue → pas de lecture
+ *   récente → appel session → instance Online → base d'essai → base non
+ *   exclue (nom de base lu dans la session).
  * Aucun élément n'est injecté dans la page.
  */
 (async function () {
@@ -16,6 +17,10 @@
 
     const settings = await store.getSettings();
     if (!settings.trackOnline || !online.isCandidateHost(host)) {
+        return;
+    }
+    // Base exclue (ou toutes les bases Online) : pas d'appel de session.
+    if (store.isIgnored(online.hostKey(host), settings.ignored)) {
         return;
     }
     if (await store.onlineCheckedRecently(host, settings.refreshHours * 3600000)) {

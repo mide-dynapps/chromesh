@@ -318,6 +318,21 @@ const DAY = 86400000;
             online.decide({ ...odooSh, db: "acme-demo" }, "acme-demo.odoo.com").mixed
         );
 
+        equal("URL de base → règle", online.ruleFromInput("https://acme-demo.odoo.com/odoo/action-123"), "Odoo Online::acme-demo");
+        equal("hôte seul → règle", online.ruleFromInput(" Acme-Demo.odoo.com "), "Odoo Online::acme-demo");
+        equal("règle Odoo.sh inchangée", online.ruleFromInput("demo-v19::Develop"), "demo-v19::Develop");
+        equal("www.odoo.com non converti", online.ruleFromInput("https://www.odoo.com/my"), "https://www.odoo.com/my");
+        equal(
+            "build Odoo.sh non converti",
+            online.ruleFromInput("acme-demo-v19-123456.dev.odoo.com"),
+            "acme-demo-v19-123456.dev.odoo.com"
+        );
+        check(
+            "base exclue reconnue avant l'appel",
+            store.isIgnored(online.hostKey("acme-demo.odoo.com"), [online.ruleFromInput("https://acme-demo.odoo.com/odoo")])
+        );
+        check("toutes les bases Online exclues", store.isIgnored(online.hostKey("acme-demo.odoo.com"), ["Odoo Online::*"]));
+
         check("option désactivée par défaut", (await store.getSettings()).trackOnline === false);
         check(
             "exclusion d'une base Online",

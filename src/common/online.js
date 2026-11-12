@@ -69,6 +69,25 @@
         return `${PROJECT}::${db}`;
     }
 
+    /** Clé de cache déduite de l'hôte seul, avant tout appel : sur Odoo Online, db = sous-domaine. */
+    function hostKey(host) {
+        return cacheKey(normalizeHost(host).split(".")[0]);
+    }
+
+    /**
+     * Ligne saisie dans les exclusions → règle. Une URL ou un hôte de base
+     * Online (`https://acme.odoo.com/odoo`, `acme.odoo.com`) devient
+     * `Odoo Online::acme`. Toute autre ligne est rendue telle quelle.
+     */
+    function ruleFromInput(line) {
+        const text = String(line || "").trim();
+        const match = /^(?:https?:\/\/)?([a-z0-9.-]+\.odoo\.com)(?:[:/?#].*)?$/i.exec(text);
+        if (!match || !isCandidateHost(match[1])) {
+            return text;
+        }
+        return hostKey(match[1]);
+    }
+
     /** "2026-11-19 14:47:52" → "2026-11-19". null si le format est inattendu. */
     function toIsoDay(value) {
         const match = /^(\d{4}-\d{2}-\d{2})\b/.exec(String(value || ""));
@@ -121,6 +140,8 @@
         saasSignals,
         isSaas,
         cacheKey,
+        hostKey,
+        ruleFromInput,
         toIsoDay,
         decide,
     };
